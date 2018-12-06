@@ -1,7 +1,4 @@
-/**
- * Created by Wesley on 04/10/2015.
- * Source: http://simjs.com/_downloads/random-0.26.js
- */
+//Source: http://simjs.com/_downloads/random-0.26.js
 
 var Random=function(a)
 {a=a===void 0?(new Date).getTime():a;this.N=624;this.M=397;this.MATRIX_A=2567483615;this.UPPER_MASK=2147483648;this.LOWER_MASK=2147483647;this.mt=Array(this.N);this.mti=this.N+1;this.init_by_array([a],1)};Random.prototype.init_genrand=function(a){this.mt[0]=a>>>0;for(this.mti=1;this.mti<this.N;this.mti++)a=this.mt[this.mti-1]^this.mt[this.mti-1]>>>30,this.mt[this.mti]=(((a&4294901760)>>>16)*1812433253<<16)+(a&65535)*1812433253+this.mti,this.mt[this.mti]>>>=0};
