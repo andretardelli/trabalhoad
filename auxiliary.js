@@ -1,27 +1,52 @@
-function Fila()
-//crio um objeto que guarda uma fila de objetos no sistema
-{
-    //crio um array que representa minha fila
-    this.array = [];
 
-    //insiro o meu elemento na fila e calculo o seu tempo de chegada
+//Objeto que guarda uma fila de objetos no sistema
+function Fila()
+{
+    
+    this.array = [];            // Array que representa todos elementos dentro da fila (incluindo em serviço)
+    this.disciplina = "FCFS";   // "FCFS" ou "LCFS"
+
+    //Insere um elemento na fila, levando em conta a disciplina
     this.push = function(newElement)
     {
-        this.array.push(newElement);
-        this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
+        //Caso 'First come first service'
+        if( this.disciplina == "FCFS" ){
+            
+            //Simplesmente vai pro final da fila
+            this.array.push( newElement );
+
+            //Acho que não tem problema não usar sort toda hora que insere
+            //this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
+        }
+        else
+        //Caso 'Last come first service'
+        if( this.disciplina == "LCFS" ){
+            
+            //Caso fila vazia, entra na posição 0
+            if( this.array.length == 0 ){
+                this.array.push( newElement );
+            }
+            //Caso contrário, sempre entra na posição 1 (imediatamente antes do elemento em serviço)
+            else{
+                this.array.splice(1,0,newElement);
+            }
+            
+            //Acho que não tem problema não usar sort toda hora que insere
+            //No caso de LCFS, usar sort sempre é um problema (pode interromper o serviço atual)
+            //this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
+        }
     };
 
-    //removo o meu elemento da fila, e determino que ele foi servido
+    //Remove um elemento da fila e o retorna.
     this.pop = function()
     {
-        //removo um elemento no inicio do array, e o retorna no final
         var served = this.array[0];
         this.array.splice(0,1);
         return served;
     };
 
-    //minha fila está vazia
-    this.emptyQueue = function()
+    //Retorna se a fila está vazia
+    this.vazia = function()
     {
         return (this.array.length === 0);
     }
