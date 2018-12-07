@@ -1,14 +1,15 @@
 
 //Objeto que guarda uma fila de objetos no sistema
-function Fila()
+function Fila( _disciplina_de_atendimento )
 {
     
-    this.array = [];            // Array que representa todos elementos dentro da fila (incluindo em serviço)
-    this.disciplina = "FCFS";   // "FCFS" ou "LCFS"
+    this.array = [];        // Array que representa todos elementos dentro da fila (incluindo em serviço)
+    this.disciplina = _disciplina_de_atendimento;   // "FCFS" ou "LCFS"
 
-    //Insere um elemento na fila, levando em conta a disciplina
+    //Insere uma pessoa na fila, levando em conta a disciplina
     this.push = function(newElement)
     {
+        document.writeln("Entrada: " + newElement.tempoDeChegada )
         //Caso 'First come first service'
         if( this.disciplina == "FCFS" ){
             
@@ -37,10 +38,11 @@ function Fila()
         }
     };
 
-    //Remove um elemento da fila e o retorna.
+    //Remove o elemento 0 da fila e o retorna.
     this.pop = function()
     {
         var served = this.array[0];
+        document.writeln("Saida: " + served.tempoDeChegada )
         this.array.splice(0,1);
         return served;
     };
@@ -52,13 +54,7 @@ function Fila()
     }
 }
 
-function atribuiEvento(_type, _eventStartTime)
-{
-    //crio um evento
-    var arrival = {type:"", eventStartTime:0};
-    //verifico se o evento é um evento de chegada ou de partida, e o instante que ocorreu
-    arrival.type = _type;
-    arrival.eventStartTime = _eventStartTime;
-
-    return arrival;
+function Pessoa( tempoDeChegada , rodada ){
+    this.tempoDeChegada = tempoDeChegada;
+    this.rodada = rodada;
 }
