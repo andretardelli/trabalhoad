@@ -56,5 +56,7 @@ function Fila( _disciplina_de_atendimento )
 
 function Pessoa( tempoDeChegada , rodada ){
     this.tempoDeChegada = tempoDeChegada;
-    this.rodada = rodada;
+    this.rodada         = rodada;
+    this.tempoDeChegadaEmServico;
+    this.tempoDeSaida;
 }
