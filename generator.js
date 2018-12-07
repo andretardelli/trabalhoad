@@ -38,7 +38,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
 
 
     fila.push( new Pessoa( proximaChegada , -1 ) );
-    proximaChegada = gerador.exponential( lambda ); // Já agendamos a segunda chegada
+    document.writeln("Entrada: " + proximaChegada + "<br>" )
+    proximaChegada = proximaChegada + gerador.exponential( lambda ); // Já agendamos a segunda chegada
 
     for( i = 0 ; i < numeroTotalRodadas ; i++ ){
         coletasPorRodada[i] = 0;
@@ -100,7 +101,10 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         // Checa se está em fase transiente e, se estiver, se já pode considerar acabada
         if( emFaseTransiente ){
             // Fazer o calculo da taxa de utilizacao recente...
-            if( true ){
+            if( gerador.randi()%10 == 0 ){ 
+                document.writeln("<br>")
+                document.writeln("...........Fim da fase transiente......................<br>") 
+                document.writeln("<br>")
                 emFaseTransiente = false;
                 rodadaAtual = 0;
             }
