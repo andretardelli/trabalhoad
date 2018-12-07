@@ -1,44 +1,44 @@
 
 function simulacaoCompleta( seed = null /* Se null, usa Date.getTime() */ ){
-    var     disciplinas = [ "FCFS" , "LCFS" ]
-    var     taxas_de_utilizacao = [ 0.2 , 0.4 , 0.6 , 0.8 , 0.9 ]
+    //var     disciplinas = [ "FCFS" , "LCFS" ]
+    //var     taxas_de_utilizacao = [ 0.2 , 0.4 , 0.6 , 0.8 , 0.9 ]
+    var     disciplinas = [ "FCFS" ]
+    var     taxas_de_utilizacao = [ 0.9 ]
     
     //Usamos o mesmo gerador para todas as filas
-    gerador = new geradorAleatorio( seed );
+    var gerador = new geradorAleatorio( seed );
 
-    for( var disciplina in disciplinas ){
-        for( var taxa_de_utilizacao in taxas_de_utilizacao ){
-            iniciaFila( taxa_de_utilizacao , disciplina , gerador );
+    for( var d in disciplinas ){
+        for( var t in taxas_de_utilizacao ){
+            iniciaFila( taxas_de_utilizacao[t] , disciplinas[d] , gerador );
         }
     }
 
 }
 
 function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
-    const   lambda = 0.1;               // TO-DO: usar formula pra pegar lambda
+    const   lambda = 0.9;               // TO-DO: usar formula pra pegar lambda
     const   mi = 1;                     // Constante 1 pelo enunciado
-    const   numeroMinimoDeColetas;      // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
-    const   numeroTotalRodadas = 3200;
+    const   numeroMinimoDeColetas = 20 // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
+    const   numeroTotalRodadas = 32
     
     var     fila = new Fila( disciplina_de_atendimento );
-    var     rodadaAtual = -1;           //Ao término da fase transiente, muda para 0
-    var     entrantes = 0;              //Contabilizaremos apenas pós fase-transiente
-    var     saintes = 0;                //Controle de término
-    var     coletasPorRodada = [];      //Inicialmente, 0 em tudo
-    var     temposDeFilaPorRodada = []; // É um vetor para cada rodada
-    var     tempoFimDasRodadas = [];      
-    var     emFaseTransiente = true;
+    var     rodadaAtual = -1            //Ao término da fase transiente, muda para 0
+    var     entrantes = 0               //Contabilizaremos apenas pós fase-transiente
+    var     saintes = 0                 //Controle de término
+    var     coletasPorRodada = []       //Inicialmente, 0 em tudo
+    var     temposDeFilaPorRodada = []  // É um vetor para cada rodada
+    var     tempoFimDasRodadas = []
+    var     emFaseTransiente = true
     var     tempoFimTransiente;
     var     proximaChegada = gerador.exponential( lambda ); // Agendamos a primeira chegada
     var     proximaSaida = proximaChegada + gerador.exponential( mi ); // Já podemos agendar a primeira saida
-    
-    // var     mediaPessoasPorRodada = [];
-    // var     mediaPessoasNoSistema = 0;
+
     // var     area = 0;
-    // var     pessoasServidas = 0;
 
 
-    fila.push( evento( "Chegada" , proximaChegada ) );
+    fila.push( new Pessoa( proximaChegada , -1 ) );
+    proximaChegada = gerador.exponential( lambda ); // Já agendamos a segunda chegada
 
     for( i = 0 ; i < numeroTotalRodadas ; i++ ){
         coletasPorRodada[i] = 0;
@@ -57,6 +57,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         //Caso proximo evento seja de saida:
         if( proximaSaida < proximaChegada ){
             eventoAtual = proximaSaida;
+            document.writeln("Saida: " + eventoAtual + "<br>" )
             var pessoaSainte = fila.pop();
             
             //Se a fila passou a ficar vazia, proxima saida depende da proxima chegada
@@ -68,9 +69,9 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
                 proximaSaida = proximaSaida + gerador.exponential( mi );
             }
             
-            //Contabiliza o tempo que a pessoa sainte ficou no sistema, levando em conta a rodada que esta entrou
-            ( temposDeFilaPorRodada[pessoaSainte.rodada] ).push( eventoAtual - pessoaSainte.tempoDeChegada )
+            //Se pós-transiente, contabiliza o tempo que a pessoa sainte ficou no sistema
             if( pessoaSainte.rodada >= 0 &&  pessoaSainte.rodada < numeroTotalRodadas ){
+                ( temposDeFilaPorRodada[pessoaSainte.rodada] ).push( eventoAtual - pessoaSainte.tempoDeChegada )
                 saintes++
             }
 
@@ -81,6 +82,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         else
         {
             eventoAtual = proximaChegada;
+            document.writeln("Entrada: " + eventoAtual + "<br>" )
             fila.push( new Pessoa( proximaChegada , rodadaAtual ) );
             proximaChegada = proximaChegada + gerador.exponential( lambda );
             //Se não esta em fase transiente, contabiliza pra rodada:

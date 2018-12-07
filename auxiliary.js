@@ -9,12 +9,13 @@ function Fila( _disciplina_de_atendimento )
     //Insere uma pessoa na fila, levando em conta a disciplina
     this.push = function(newElement)
     {
-        document.writeln("Entrada: " + newElement.tempoDeChegada )
+
         //Caso 'First come first service'
         if( this.disciplina == "FCFS" ){
             
             //Simplesmente vai pro final da fila
             this.array.push( newElement );
+            
 
             //Acho que não tem problema não usar sort toda hora que insere
             //this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
@@ -41,10 +42,9 @@ function Fila( _disciplina_de_atendimento )
     //Remove o elemento 0 da fila e o retorna.
     this.pop = function()
     {
-        var served = this.array[0];
-        document.writeln("Saida: " + served.tempoDeChegada )
+        var sainte = this.array[0];
         this.array.splice(0,1);
-        return served;
+        return sainte;
     };
 
     //Retorna se a fila está vazia
