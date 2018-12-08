@@ -152,10 +152,12 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     var     taxaDeUtilizacaoPorRodada = []
 
     // Calculo das variaveis estatisticas
+    var sumtemp = 0.0;
+    var sumvar = 0.0;
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
         
         // Calculo do tempo medio por rodada. Media do tempo em fila para cada pessoa
-        tempoMedioPorRodada[r] = mediaTempoEmFila( pessoasPorRodada[r] )
+        tempoMedioPorRodada[r] = mediaTempoEmFila( pessoasPorRodada[r] );
         //$("#data").append( "tempoMedio(rodada " + r + "):.........." + tempoMedioPorRodada[r] + "<br>")
         addDataToGraph(tempoMedioPorRodada[r] , tempoMedioPorRodadaData, window.tempoMedioPorRodadaChart);
 
@@ -172,8 +174,15 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         //$("#data").append( "duracaoRodada(rodada " + r + "):......." + tempoPorRodada[r] + "<br>")
         //$("#data").append( "tempoOcioso(rodada " + r + "):.........." + tempoOciosoPorRodada[r] + "<br>")
         //$("#data").append( "<br><br><br>")
-
+        sumtemp = Number(sumtemp) + Number(tempoMedioPorRodada[r]);
     }    
+    for( r = 0 ; r < numeroTotalRodadas ; r++ ){
+        sumvar = Number(sumvar) + Number(Math.pow((tempoMedioPorRodada[r] - sumtemp/numeroTotalRodadas), 2));
+    }
+    var icm = ICmedia(sumtemp/numeroTotalRodadas, numeroTotalRodadas, sumvar/(numeroTotalRodadas-1));
+    var icv = ICvariancia(sumtemp/numeroTotalRodadas, numeroTotalRodadas, sumvar/(numeroTotalRodadas-1))
+    console.log(ic);
+    addIC(tempoMedioPorRodadaData, window.tempoMedioPorRodadaChart, icm[0], icm[1]);
 
 }
 

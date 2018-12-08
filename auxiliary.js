@@ -85,6 +85,7 @@ function mediaTempoEmFila( array_de_pessoas ){
         media += tempo_em_fila
     }
     media = media / array_de_pessoas.length
+    //console.log(media)
     return media
 }
 
