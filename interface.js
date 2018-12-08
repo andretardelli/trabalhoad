@@ -46,7 +46,14 @@ window.onload = function() {
             title: {
                 display: true,
                 text: 'Tempo médio de pessoas por rodada'
-            }
+            },
+            scales: {
+                yAxes: [{
+                         ticks: {
+                             min: 0 // minimum value
+                         }
+                }]
+             }
         }
     });
 
@@ -62,7 +69,14 @@ window.onload = function() {
             title: {
                 display: true,
                 text: 'Número médio de pessoas por rodada'
-            }
+            },
+            scales: {
+                yAxes: [{
+                         ticks: {
+                             min: 0 // minimum value
+                         }
+                }]
+             }
         }
     });
 
@@ -78,6 +92,14 @@ window.onload = function() {
             title: {
                 display: true,
                 text: 'Taxa de Utilização por rodada'
+            },
+            scales: {
+               yAxes: [{
+                        ticks: {
+                            min: 0, // minimum value
+                            max: 1 // maximum value
+                        }
+               }]
             }
         }
     });
