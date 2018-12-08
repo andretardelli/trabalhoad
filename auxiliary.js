@@ -1,12 +1,10 @@
 
 
-//Objeto que guarda uma fila de objetos no sistema
+//Objeto que guarda uma fila de objetos do tipo Pessoa
 function Fila( _disciplina_de_atendimento )
 {
-    
-    this.array = [];        // Array que representa todos elementos dentro da fila (incluindo em serviço)
+    this.array = [];        // Array com todas as pessoas da fila (incluindo em serviço)
     this.disciplina = _disciplina_de_atendimento;   // "FCFS" ou "LCFS"
-
     //Insere uma pessoa na fila, levando em conta a disciplina
     this.push = function(newElement)
     {
@@ -39,7 +37,6 @@ function Fila( _disciplina_de_atendimento )
             //this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
         }
     };
-
     //Remove o elemento 0 da fila e o retorna.
     this.pop = function()
     {
@@ -47,7 +44,6 @@ function Fila( _disciplina_de_atendimento )
         this.array.splice(0,1);
         return sainte;
     };
-
     //Retorna se a fila está vazia
     this.vazia = function()
     {
@@ -61,3 +57,46 @@ function Pessoa( tempoDeChegada , rodada ){
     this.tempoDeChegadaEmServico;
     this.tempoDeSaida;
 }
+
+//Passando um array com números, retorna a media desses valores.
+function media( array_de_numeros ){
+    var media = 0
+    for( var i = 0 ; i < array_de_numeros.length ; i ++ )
+        media += array_de_numeros[i]
+    media = media / array_de_numeros.length
+    return media
+}
+
+//Passando um array com números, retorna a variancia desses valores.
+function variancia( array_de_numeros ){
+    var variancia = 0
+    var media = media( array_de_numeros )
+    for( var i = 0 ; i < array_de_numeros.length ; i ++ )
+        media += array_de_numeros[i]
+    media = media / array_de_numeros.length
+    return media
+}
+
+//Passando um array com objetos da classe 'Pessoa', retorna a media do tempo em fila
+function mediaTempoEmFila( array_de_pessoas ){
+    var media = 0;
+    for( var i = 0 ; i < array_de_pessoas.length ; i++ ){
+        var tempo_em_fila = array_de_pessoas[i].tempoDeSaida - array_de_pessoas[i].tempoDeChegada
+        media += tempo_em_fila
+    }
+    media = media / array_de_pessoas.length
+    return media
+}
+
+//Passando um array com objetos da classe 'Pessoa', retorna a variancia do tempo em fila
+function varianciaTempoEmFila( array_de_pessoas ){
+    var variancia = 0;
+    var media = mediaTempoEmFila(array_de_pessoas)
+    for( var i = 0 ; i < array_de_pessoas.length ; i++ ){
+        var tempo_em_fila = array_de_pessoas[i].tempoDeSaida - array_de_pessoas[i].tempoDeChegada
+        variancia += Math.pow( Math.abs(tempo_em_fila-media) , 2 ) 
+    }
+    variancia = variancia / array_de_pessoas.length
+    return variancia
+}
+
