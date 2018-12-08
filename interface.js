@@ -41,12 +41,19 @@ window.onload = function() {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
                 display: true,
                 text: 'Tempo médio de pessoas por rodada'
-            }
+            },
+            scales: {
+                yAxes: [{
+                         ticks: {
+                             min: 0 // minimum value
+                         }
+                }]
+             }
         }
     });
 
@@ -57,12 +64,19 @@ window.onload = function() {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
                 display: true,
                 text: 'Número médio de pessoas por rodada'
-            }
+            },
+            scales: {
+                yAxes: [{
+                         ticks: {
+                             min: 0 // minimum value
+                         }
+                }]
+             }
         }
     });
 
@@ -73,11 +87,19 @@ window.onload = function() {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
                 display: true,
                 text: 'Taxa de Utilização por rodada'
+            },
+            scales: {
+               yAxes: [{
+                        ticks: {
+                            min: 0, // minimum value
+                            max: 1 // maximum value
+                        }
+               }]
             }
         }
     });
