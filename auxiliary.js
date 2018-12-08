@@ -1,4 +1,5 @@
 
+
 //Objeto que guarda uma fila de objetos no sistema
 function Fila( _disciplina_de_atendimento )
 {

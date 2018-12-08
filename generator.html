@@ -1,21 +1,52 @@
 <!DOCTYPE html>
     <head>
         <meta charset="UTF-8"> 
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script type="text/javascript" src="assets/Chart.min.js"></script>
+        <script src="assets/Chart.bundle.min.js"></script>
+        <script src="assets/utils.js"></script>
+        
+        <script type="text/javascript" src="interface.js"></script>
         <script type="text/javascript" src="auxiliary.js"></script>
         <script type="text/javascript" src="generator.js"></script>
         <script type="text/javascript" src="Random.js"></script>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     </head>
     <body>
 
         <h1>Trabalho de avaliação e desempenho.</h1>
         <h2>Simulação de fila M/M/1</h2>
+        <button id="simula" onclick="simulacaoCompleta()">Click Me!</button>
 
+        <select id="options">
+                <option value="tempoMedio" selected>Tempo Médio de Pessoas por Rodada</option>
+                <option value="numeroMedio">Número Médio de Pessoas por Rodada</option>
+                <option value="taxaDeUtilização">Taxa Média de Utilização por Rodada</option>
+        </select>
+        
+        <canvas id="graph1"></canvas>
+        <canvas id="graph2" style="display:none"></canvas>
+        <canvas id="graph3" style="display:none"></canvas>
+        <div id="data"></div>
 
         <script>
-            simulacaoCompleta();
+            $("#options").on("change", function(){
+                if (this.value == "tempoMedio"){
+                    $("#graph1").css("display","block");
+                    $("#graph2").css("display","none");
+                    $("#graph3").css("display","none");
+                }
+                else if (this.value == "numeroMedio"){
+                    $("#graph1").css("display","none");
+                    $("#graph2").css("display","block");
+                    $("#graph3").css("display","none");
+                }
+                else if (this.value == "taxaDeUtilização"){
+                    $("#graph1").css("display","none");
+                    $("#graph2").css("display","none");
+                    $("#graph3").css("display","block");
+                }
+            });
+
         </script>
-
-
     </body>
 </html>

@@ -1,4 +1,3 @@
-
 function simulacaoCompleta( seed = null /* Se null, usa Date.getTime() */ ){
     //var     disciplinas = [ "FCFS" , "LCFS" ]
     //var     taxas_de_utilizacao = [ 0.2 , 0.4 , 0.6 , 0.8 , 0.9 ]
@@ -13,7 +12,6 @@ function simulacaoCompleta( seed = null /* Se null, usa Date.getTime() */ ){
             iniciaFila( taxas_de_utilizacao[t] , disciplinas[d] , gerador )
         }
     }
-
 }
 
 function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
@@ -154,20 +152,24 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
             tempoMedioPorRodada[r] += pessoa.tempoDeSaida - pessoa.tempoDeChegada
         }
         tempoMedioPorRodada[r] = tempoMedioPorRodada[r] / pessoasPorRodada[r].length 
-        document.write( "tempoMedio(rodada " + r + "):.........." + tempoMedioPorRodada[r] + "<br>")
+        $("#data").append( "tempoMedio(rodada " + r + "):.........." + tempoMedioPorRodada[r] + "<br>")
+        addDataToGraph(tempoMedioPorRodada[r] , tempoMedioPorRodadaData, window.tempoMedioPorRodadaChart);
 
         //Calculo do numero medio de pessoas por rodada
         numeroMedioPorRodada[r] = areaPorRodada[r] / pessoasPorRodada[r].length
-        document.write( "numeroMedio(rodada " + r + "):........." + numeroMedioPorRodada[r] + "<br>")
+        $("#data").append( "numeroMedio(rodada " + r + "):........." + numeroMedioPorRodada[r] + "<br>")
+        addDataToGraph(numeroMedioPorRodada[r] , numeroMedioPorRodadaData, window.numeroMedioPorRodadaChart);
 
         //Calculo da taxa de utilizacao por rodada:
         taxaDeUtilizacaoPorRodada[r] = (duracaoRodadas[r] - tempoOciosoPorRodada[r]) / duracaoRodadas[r]
-        document.write( "taxaDeUtilizacao(rodada " + r + "):...." + taxaDeUtilizacaoPorRodada[r] + "<br>")
+        $("#data").append( "taxaDeUtilizacao(rodada " + r + "):...." + taxaDeUtilizacaoPorRodada[r] + "<br>")
+        addDataToGraph(taxaDeUtilizacaoPorRodada[r] , taxaDeUtilizacaoPorRodadaData, window.taxaDeUtilizacaoPorRodadaChart);
 
-        document.write( "duracaoRodada(rodada " + r + "):......." + duracaoRodadas[r] + "<br>")
-        document.write( "tempoOcioso(rodada " + r + "):.........." + tempoOciosoPorRodada[r] + "<br>")
-        document.write( "<br><br><br>")
+        $("#data").append( "duracaoRodada(rodada " + r + "):......." + duracaoRodadas[r] + "<br>")
+        $("#data").append( "tempoOcioso(rodada " + r + "):.........." + tempoOciosoPorRodada[r] + "<br>")
+        $("#data").append( "<br><br><br>")
 
     }    
 
 }
+
