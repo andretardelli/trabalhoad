@@ -8,9 +8,9 @@ function geradorAleatorio( seed = null ){
 
     
     //========================================================================
-    this.setSeed = function( new_value ){
-        new_value = ( m + new_value - 1) % m    //Precisamos garantir que new_value != 0
-        this.z_atual = new_value % m;
+    this.setSeed = function( s ){
+        s = ( m + s - 1) % m    //Precisamos garantir que s != 0 para evitar z_atual == 0
+        this.z_atual = s % m;
     }
     this.step = function(){
         this.z_atual = ( this.z_atual * b + c ) % m;
