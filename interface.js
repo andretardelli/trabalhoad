@@ -41,7 +41,7 @@ window.onload = function() {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
                 display: true,
@@ -64,7 +64,7 @@ window.onload = function() {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
                 display: true,
@@ -87,7 +87,7 @@ window.onload = function() {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
                 display: true,
