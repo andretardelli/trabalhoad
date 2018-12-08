@@ -1,5 +1,12 @@
-    var color = Chart.helpers.color;
-    var colorNames = Object.keys(window.chartColors);
+    window.chartColors = {
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
+    };
 
     var N = 320; 
     var labelsize = [];
@@ -15,12 +22,20 @@
     var numeroMedioPorRodadaData = {
         labels: [],
         datasets: [{
+            // backgroundColor: window.chartColors.red,
+            borderWidth: 1,
+            lineTension: 0,
+            data: []
         }]
     };
 
     var taxaDeUtilizacaoPorRodadaData = {
         labels: [],
         datasets: [{
+            // backgroundColor: window.chartColors.blue,
+            borderWidth: 1,
+            lineTension: 0,
+            data: []
         }]
     };
     // The original draw function for the line chart. This will be applied after we have drawn our highlight range (as a rectangle behind the line chart).
@@ -84,6 +99,7 @@ window.onload = function() {
         options: {
             responsive: true,
             showLines: true,
+            lineTension: 0,
             legend: {
                 display: false,
             },
@@ -104,10 +120,12 @@ window.onload = function() {
 
     var ctx2 = document.getElementById('graph2').getContext('2d');
     window.numeroMedioPorRodadaChart = new Chart(ctx2, {
-        type: 'bar',
+        type: 'scatter',
         data: numeroMedioPorRodadaData,
         options: {
             responsive: true,
+            showLines: true,
+            lineTension: 0,
             legend: {
                 display: false,
             },
@@ -127,10 +145,11 @@ window.onload = function() {
 
     var ctx3 = document.getElementById('graph3').getContext('2d');
     window.taxaDeUtilizacaoPorRodadaChart = new Chart(ctx3, {
-        type: 'bar',
+        type: 'scatter',
         data: taxaDeUtilizacaoPorRodadaData,
         options: {
             responsive: true,
+            showLines: true,
             legend: {
                 display: false,
             },

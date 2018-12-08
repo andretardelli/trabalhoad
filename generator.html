@@ -3,29 +3,38 @@
         <meta charset="UTF-8"> 
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
         <script src="assets/Chart.bundle.min.js"></script>
-        <script src="assets/utils.js"></script>
         
         <script type="text/javascript" src="interface.js"></script>
         <script type="text/javascript" src="auxiliary.js"></script>
         <script type="text/javascript" src="generator.js"></script>
         <script type="text/javascript" src="Random.js"></script>
         <script type="text/javascript" src="intervalosConf.js"></script>
+        <link rel="stylesheet" type="text/css" href="generator.css">
     </head>
     <body>
 
         <h1>Trabalho de avaliação e desempenho.</h1>
         <h2>Simulação de fila M/M/1</h2>
         <button id="simula" onclick="simulacaoCompleta()">Click Me!</button>
-
+        <br>
         <select id="options">
                 <option value="tempoMedio" selected>Tempo Médio de Pessoas por Rodada</option>
                 <option value="numeroMedio">Número Médio de Pessoas por Rodada</option>
                 <option value="taxaDeUtilização">Taxa Média de Utilização por Rodada</option>
         </select>
-        
-        <canvas id="graph1"></canvas>
-        <canvas id="graph2" style="display:none"></canvas>
-        <canvas id="graph3" style="display:none"></canvas>
+    
+            Taxa de Utilização: <input type="number" id="taxaUtilizacao" value="0.9"><br>
+            Disciplina de Atendimento:  <select id="discipline">
+                                            <option value="FCFS" selected>FCFS</option>
+                                            <option value="LCFS">LCFS</option>
+                                        </select><br>
+            &mu;<input type="number" id="mu" value="1"><br>
+
+        <div class="chartarea">
+            <canvas id="graph1" ></canvas>
+            <canvas id="graph2" style="display:none"></canvas>
+            <canvas id="graph3" style="display:none"></canvas>
+        </div>
         <div id="data"></div>
 
         <script>
