@@ -157,33 +157,27 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
         
         // Calculo do tempo medio por rodada. Media do tempo de estadia para cada pessoa
-        tempoMedioPorRodada[r] = 0
-        for( i in pessoasPorRodada[r] ){
-            pessoa = (pessoasPorRodada[r])[i];
-            tempoMedioPorRodada[r] += pessoa.tempoDeSaida - pessoa.tempoDeChegada;
-        }
-
         $("#data").append("<h2>Rodada "+ r + "</h2>");
         var tabelaRodada = "<table border='1'>";
 
-        tempoMedioPorRodada[r] = tempoMedioPorRodada[r] / pessoasPorRodada[r].length; 
+        tempoMedioPorRodada[r] = mediaTempoEmFila( pessoasPorRodada[r] )
         tabelaRodada+="<tr><td>Tempo Médio de Serviço</td><td>"+tempoMedioPorRodada[r]+"</td></tr>";
         addDataToGraph({y : tempoMedioPorRodada[r], x : r}, tempoMedioPorRodadaData, window.tempoMedioPorRodadaChart);
 
         //Calculo do numero medio de pessoas por rodada
-        numeroMedioPorRodada[r] = areaPorRodada[r] / pessoasPorRodada[r].length;
+        numeroMedioPorRodada[r] = areaPorRodada[r] / pessoasPorRodada[r].length
         tabelaRodada+="<tr><td>Número Médio de Pessoas</td><td>"+numeroMedioPorRodada[r]+"</td></tr>";
         addDataToGraph({y : numeroMedioPorRodada[r],x : r}, numeroMedioPorRodadaData, window.numeroMedioPorRodadaChart);
 
         //Calculo da taxa de utilizacao por rodada:
-        taxaDeUtilizacaoPorRodada[r] = (duracaoRodadas[r] - tempoOciosoPorRodada[r]) / duracaoRodadas[r];
+        taxaDeUtilizacaoPorRodada[r] = (tempoPorRodada[r] - tempoOciosoPorRodada[r]) / tempoPorRodada[r]
         tabelaRodada+="<tr><td>Taxa de Utilização</td><td>"+taxaDeUtilizacaoPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : numeroMedioPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData, window.taxaDeUtilizacaoPorRodadaChart);
+        addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData, window.taxaDeUtilizacaoPorRodadaChart);
 
-        tabelaRodada+="<tr><td>Duração</td><td>"+duracaoRodadas[r]+"</td></tr>";
-        tabelaRodada+="<tr><td>Tempo Ocioso</td><td>"+tempoOciosoPorRodada[r]+"</td></tr>";
+        // tabelaRodada+="<tr><td>Duração</td><td>"+duracaoRodadas[r]+"</td></tr>";
+        // tabelaRodada+="<tr><td>Tempo Ocioso</td><td>"+tempoOciosoPorRodada[r]+"</td></tr>";
 
-        tabelaRodada += "</table><br>";
+        tabelaRodada += "</table><br><br><br>";
         $("#data").append(tabelaRodada);
 
 
