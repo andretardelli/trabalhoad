@@ -18,6 +18,7 @@
             // backgroundColor: window.chartColors.red,
             borderWidth: 1,
             lineTension: 0,
+            radius: 0,
             data: []
         }],
         yHighlightRange:{
@@ -30,6 +31,7 @@
             // backgroundColor: window.chartColors.red,
             borderWidth: 1,
             lineTension: 0,
+            radius: 0,
             data: []
         }]
     };
@@ -40,6 +42,7 @@
             // backgroundColor: window.chartColors.blue,
             borderWidth: 1,
             lineTension: 0,
+            radius: 0,
             data: []
         }]
     };
@@ -101,7 +104,7 @@ window.onload = function() {
             },
             title: {
                 display: true,
-                text: 'Taxa de Utilização por rodada'
+                text: 'Tempo Médio de Pessoas por Rodada'
             },
             scales: {
                yAxes: [{
