@@ -158,6 +158,39 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     var sumvtemp = 0.0;
     var summnum = 0.0;
     var sumvnum = 0.0;
+
+    var tempoMedioPorRodadaData = {
+        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+        datasets: [{
+            // backgroundColor: window.chartColors.red,
+            borderWidth: 1,
+            lineTension: 0,
+            radius: 0,
+            data: []
+        }]
+    };
+
+    var numeroMedioPorRodadaData = {
+        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+        datasets: [{
+            // backgroundColor: window.chartColors.red,
+            borderWidth: 1,
+            lineTension: 0,
+            radius: 0,
+            data: []
+        }]
+    };
+
+    var taxaDeUtilizacaoPorRodadaData = {
+        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+        datasets: [{
+            // backgroundColor: window.chartColors.blue,
+            borderWidth: 1,
+            lineTension: 0,
+            radius: 0,
+            data: []
+        }]
+    };
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
         
         // Calculo do tempo medio por rodada. Media do tempo de estadia para cada pessoa
@@ -166,17 +199,17 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
 
         tempoMedioPorRodada[r] = mediaTempoEmFila( pessoasPorRodada[r] )
         tabelaRodada+="<tr><td>Tempo Médio de Serviço</td><td>"+tempoMedioPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : tempoMedioPorRodada[r], x : r}, tempoMedioPorRodadaData, window.tempoMedioPorRodadaChart);
+        addDataToGraph({y : tempoMedioPorRodada[r], x : r}, tempoMedioPorRodadaData);
 
         //Calculo do numero medio de pessoas por rodada
         numeroMedioPorRodada[r] = areaPorRodada[r] / pessoasPorRodada[r].length
         tabelaRodada+="<tr><td>Número Médio de Pessoas</td><td>"+numeroMedioPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : numeroMedioPorRodada[r],x : r}, numeroMedioPorRodadaData, window.numeroMedioPorRodadaChart);
+        addDataToGraph({y : numeroMedioPorRodada[r],x : r}, numeroMedioPorRodadaData);
 
         //Calculo da taxa de utilizacao por rodada:
         taxaDeUtilizacaoPorRodada[r] = (tempoPorRodada[r] - tempoOciosoPorRodada[r]) / tempoPorRodada[r]
         tabelaRodada+="<tr><td>Taxa de Utilização</td><td>"+taxaDeUtilizacaoPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData, window.taxaDeUtilizacaoPorRodadaChart);
+        addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
 
         // tabelaRodada+="<tr><td>Duração</td><td>"+duracaoRodadas[r]+"</td></tr>";
         // tabelaRodada+="<tr><td>Tempo Ocioso</td><td>"+tempoOciosoPorRodada[r]+"</td></tr>";
@@ -192,14 +225,16 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     }    
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
         sumvtemp = Number(sumvtemp) + Number(Math.pow((tempoMedioPorRodada[r] - summtemp/numeroTotalRodadas), 2));
-        sumvnum = Number(sumvnum) + Number(Math.pow((numeroMedioPorRodada[r] - sumvnum/numeroTotalRodadas), 2));
+        sumvnum = Number(sumvnum) + Number(Math.pow(numeroMedioPorRodada[r], 2) - numeroTotalRodadas*Math.pow(summnum/numeroTotalRodadas, 2));
     }
     var icmtemp = ICmedia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
-    var icvtemp = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1))
+    //var icvtemp = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1))
     var icmnum = ICmedia(summnum/numeroTotalRodadas, numeroTotalRodadas, sumvnum/(numeroTotalRodadas-1));
-    var icvnum = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
-    //addIC(numeroMedioPorRodadaData, window.numeroMedioPorRodadaChart, icmnum[0], icmnum[1]);
-    //console.log(icmnum)
+    //var icvnum = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
+    //addIC(window.tempoMedioPorRodadaChart, icmtemp[0], icmtemp[1]);
+    //addIC(window.numeroMedioPorRodadaChart, icmnum[0], icmnum[1]);
+    //console.log(icmtemp[0], icmtemp[1])
+    plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, icmtemp, icmnum);
 
 }
 

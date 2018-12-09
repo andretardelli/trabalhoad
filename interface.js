@@ -8,94 +8,28 @@
         grey: 'rgb(201, 203, 207)'
     };
 
-    var N = 320; 
-    var labelsize = [];
-    //console.log(Array.apply(null, {length: N+1}).map(Number.call, Number));
-
-    var tempoMedioPorRodadaData = {
-        labels: Array.apply(null, {length: N+1}).map(Number.call, Number),
-        datasets: [{
-            // backgroundColor: window.chartColors.red,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }],
-        yHighlightRange:{
-        }
-    };
-
-    var numeroMedioPorRodadaData = {
-        labels: [],
-        datasets: [{
-            // backgroundColor: window.chartColors.red,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }],
-        yHighlightRange:{
-        }
-    };
-
-    var taxaDeUtilizacaoPorRodadaData = {
-        labels: [],
-        datasets: [{
-            // backgroundColor: window.chartColors.blue,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }],
-        yHighlightRange:{
-        }
-    };
-    // The original draw function for the line chart. This will be applied after we have drawn our highlight range (as a rectangle behind the line chart).
-    var originalLineDraw = Chart.controllers.line.prototype.draw;
-    // Extend the line chart, in order to override the draw function.
-    Chart.helpers.extend(Chart.controllers.line.prototype, {
-    draw : function() {
-        var chart = this.chart;
-        // Get the object that determines the region to highlight.
-        var yHighlightRange = chart.config.data.yHighlightRange;
-        // If the object exists.
-        if (yHighlightRange !== undefined) {
-        var ctx = chart.chart.ctx;
-        var yRangeBegin = yHighlightRange.begin;
-        var yRangeEnd = yHighlightRange.end;
-        var xaxis = chart.scales['x-axis-0'];
-        var yaxis = chart.scales['y-axis-0'];
-        var yRangeBeginPixel = yaxis.getPixelForValue(yRangeBegin);
-        var yRangeEndPixel = yaxis.getPixelForValue(yRangeEnd);
-        ctx.save();
-        // The fill style of the rectangle we are about to fill.
-        ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
-        // Fill the rectangle that represents the highlight region. The parameters are the closest-to-starting-point pixel's x-coordinate,
-        // the closest-to-starting-point pixel's y-coordinate, the width of the rectangle in pixels, and the height of the rectangle in pixels, respectively.
-        ctx.fillRect(xaxis.left, Math.min(yRangeBeginPixel, yRangeEndPixel), xaxis.right - xaxis.left, Math.max(yRangeBeginPixel, yRangeEndPixel) - Math.min(yRangeBeginPixel, yRangeEndPixel));
-        ctx.restore();
-        }
-        // Apply the original draw function for the line chart.
-        originalLineDraw.apply(this, arguments);
-    }
-    });
-
-function addDataToGraph(dataGrafico, nomeDataset, tipoGrafico) {
+function addDataToGraph(dataGrafico, nomeDataset) {
     nomeDataset.datasets[0].data.push(dataGrafico);
     nomeDataset.datasets.push(dataGrafico);
-    tipoGrafico.update();
+    //tipoGrafico.update();
 };
 
-function addIC(nomeDataset, tipoGrafico, icmin, icmax){
-    nomeDataset.yHighlightRange = {
-        begin: icmin,
-        end: icmax
+function addIC(tipoGrafico, icmin, icmax){
+    if(tipoGrafico == window.tempoMedioPorRodadaChart){
+        IcTempo[0] = icmin;
+        IcTempomax[1] =  icmax;
+    }
+    if(tipoGrafico == window.numeroMedioPorRodadaChart){
+        IcNum[0] = icmin;
+        IcNummax[1] = icmax;
     }
     tipoGrafico.update();
 };
 
-window.onload = function() {
+//window.onload = function() {
+function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, IcTempo, IcNum){
     var ctx = document.getElementById('graph1').getContext('2d');
+    console.log(IcTempo, IcNum);
     window.tempoMedioPorRodadaChart = new Chart(ctx, {
         type: 'line',
         data: tempoMedioPorRodadaData,
@@ -113,17 +47,27 @@ window.onload = function() {
             scales: {
                yAxes: [{
                         ticks: {
-                            min: 1, // minimum value
-                            max: 3 // maximum value
+                            min: 1.5, // minimum value
+                            max: 2.5 // maximum value
                         }
                }]
-            }
-        }
+            },
+            annotation: {
+                annotations: [{
+                   type: 'box',
+                   //drawTime: 'afterDatasetsDraw',
+                   yScaleID: 'y-axis-0',
+                   yMin: IcTempo[0],
+                   yMax: IcTempo[1],
+                   backgroundColor: 'rgba(0, 255, 0, 0.1)'
+                }]
+             }
+        },
     });
 
     var ctx2 = document.getElementById('graph2').getContext('2d');
     window.numeroMedioPorRodadaChart = new Chart(ctx2, {
-        type: 'scatter',
+        type: 'line',
         data: numeroMedioPorRodadaData,
         options: {
             responsive: true,
@@ -142,7 +86,17 @@ window.onload = function() {
                              min: 0 // minimum value
                          }
                 }]
-             }
+             },
+            annotation: {
+                annotations: [{
+                type: 'box',
+                //drawTime: 'beforeDatasetsDraw',
+                yScaleID: 'y-axis-0',
+                yMin: IcNum[0],
+                yMax: IcNum[1],
+                backgroundColor: 'rgba(0, 255, 0, 0.1)'
+                }]
+            }
         }
     });
 
