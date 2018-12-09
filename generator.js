@@ -154,8 +154,10 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     var     taxaDeUtilizacaoPorRodada = [];
 
     // Calculo das variaveis estatisticas
-    var sumtemp = 0.0;
-    var sumvar = 0.0;
+    var summtemp = 0.0;
+    var sumvtemp = 0.0;
+    var summnum = 0.0;
+    var sumvnum = 0.0;
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
         
         // Calculo do tempo medio por rodada. Media do tempo de estadia para cada pessoa
@@ -185,15 +187,19 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         //$("#data").append( "duracaoRodada(rodada " + r + "):......." + tempoPorRodada[r] + "<br>")
         //$("#data").append( "tempoOcioso(rodada " + r + "):.........." + tempoOciosoPorRodada[r] + "<br>")
         //$("#data").append( "<br><br><br>")
-        sumtemp = Number(sumtemp) + Number(tempoMedioPorRodada[r]);
+        summtemp = Number(summtemp) + Number(tempoMedioPorRodada[r]);
+        summnum = Number(summnum) + Number(numeroMedioPorRodada[r]);
     }    
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
-        sumvar = Number(sumvar) + Number(Math.pow((tempoMedioPorRodada[r] - sumtemp/numeroTotalRodadas), 2));
+        sumvtemp = Number(sumvtemp) + Number(Math.pow((tempoMedioPorRodada[r] - summtemp/numeroTotalRodadas), 2));
+        sumvnum = Number(sumvnum) + Number(Math.pow((numeroMedioPorRodada[r] - sumvnum/numeroTotalRodadas), 2));
     }
-    var icm = ICmedia(sumtemp/numeroTotalRodadas, numeroTotalRodadas, sumvar/(numeroTotalRodadas-1));
-    var icv = ICvariancia(sumtemp/numeroTotalRodadas, numeroTotalRodadas, sumvar/(numeroTotalRodadas-1))
-    console.log(ic);
-    addIC(tempoMedioPorRodadaData, window.tempoMedioPorRodadaChart, icm[0], icm[1]);
+    var icmtemp = ICmedia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
+    var icvtemp = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1))
+    var icmnum = ICmedia(summnum/numeroTotalRodadas, numeroTotalRodadas, sumvnum/(numeroTotalRodadas-1));
+    var icvnum = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
+    //addIC(numeroMedioPorRodadaData, window.numeroMedioPorRodadaChart, icmnum[0], icmnum[1]);
+    //console.log(icmnum)
 
 }
 

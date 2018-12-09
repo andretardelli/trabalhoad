@@ -33,7 +33,9 @@
             lineTension: 0,
             radius: 0,
             data: []
-        }]
+        }],
+        yHighlightRange:{
+        }
     };
 
     var taxaDeUtilizacaoPorRodadaData = {
@@ -44,7 +46,9 @@
             lineTension: 0,
             radius: 0,
             data: []
-        }]
+        }],
+        yHighlightRange:{
+        }
     };
     // The original draw function for the line chart. This will be applied after we have drawn our highlight range (as a rectangle behind the line chart).
     var originalLineDraw = Chart.controllers.line.prototype.draw;
@@ -88,7 +92,7 @@ function addIC(nomeDataset, tipoGrafico, icmin, icmax){
         end: icmax
     }
     tipoGrafico.update();
-}
+};
 
 window.onload = function() {
     var ctx = document.getElementById('graph1').getContext('2d');
@@ -104,7 +108,7 @@ window.onload = function() {
             },
             title: {
                 display: true,
-                text: 'Tempo Médio de Pessoas por Rodada'
+                text: 'Tempo Médio de Espera por Rodada'
             },
             scales: {
                yAxes: [{

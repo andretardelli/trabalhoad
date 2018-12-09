@@ -2,7 +2,6 @@
 function ICmedia(tempoMedioFila, rodadas, tempoVarianciaFila){
     //valores de z(1-a/2) e z(a/2) tirado da tabela para a=0.05
     //z(1-a/2) = -z(a/2)
-    console.log(tempoMedioFila, rodadas, tempoVarianciaFila);
     var z = 1.96;
     //define min e max varoles do intervalo
     var min = tempoMedioFila  - z*(Math.sqrt(tempoVarianciaFila)/Math.sqrt(rodadas));
