@@ -9,12 +9,12 @@ function ICmedia(tempoMedioFila, rodadas, tempoVarianciaFila){
     return [min, max];
 }
 
-//Calcula intervalo de confianca para variancia do tempo de espera usando chi-quadrado
+//Calcula intervalo de confianca para variancia do tempo de espera usando chi-quadrado com 3200 graus de liberdado
 function ICvariancia(tempoMedioFila, rodadas, tempoVarianciaFila){
     //valores q(1-a/2) e q(a/2) tirados da tabela chi-quadrado para a=0.05
-    var q1 = 20.48;
-    var q2 = 3.25;
-    //define min e max varoles do intervalo
+    var q1 = 3358.6827;
+    var q2 = 3045.1056;
+    //define min e max valores do intervalo
     var min = ((rodadas - 1)*tempoVarianciaFila)/q1;
     var max = ((rodadas - 1)*tempoVarianciaFila)/q2;
     return [min, max];
