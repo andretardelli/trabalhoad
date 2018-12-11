@@ -1,5 +1,5 @@
 
-function geradorAleatorio( seed = null ){
+function geradorAleatorio( seed ){
     
     const m = Math.pow(2,31) - 1;
     const b = Math.pow(7,5);
@@ -9,7 +9,7 @@ function geradorAleatorio( seed = null ){
     
     //========================================================================
     this.setSeed = function( s ){
-        s = ( m + s - 1) % m    //Precisamos garantir que s != 0 para evitar z_atual == 0
+        s = 1 + s%(m-1)    //Precisamos garantir que s != 0 para evitar z_atual == 0
         this.z_atual = s % m;
     }
     this.step = function(){
@@ -34,11 +34,11 @@ function geradorAleatorio( seed = null ){
     //========================================================================
 
     //Se não foi passada nenhuma seed, usa Date.getTime(), que é a contagem em milisegundos desde (Jan 1, 1970) :
-    if( seed === null ){
+    if( isNaN(parseInt(seed,10)) ){
         var date = new Date();
         seed = ( date.getTime() * Math.pow(7,5) ) % m ;
     }
     
-    this.setSeed( seed );
+    this.setSeed( parseInt(seed,10) );
 
 }

@@ -1,15 +1,15 @@
-function simulacaoCompleta( seed = null /* Se null, usa Date.getTime() */ ){
+function simulacaoCompleta( ){
     var disciplina = $("#discipline").val();
     var taxa_de_utilizacao = $("#taxaUtilizacao").val();
     
-    if( $("#taxaUtilizacao").val() == "" || $("#mu").val() == "" || $("#kmin").val() == "" || $("#seed").val() == ""){
-        alert("Preencha todos os campos antes de executar o simulador!");
+    if( $("#taxaUtilizacao").val() == "" || $("#mu").val() == "" || $("#kmin").val() == "" ){
+        alert("Preencha todos os campos antes de executar o simulador! (Com exceção da seed, que será gerada uma internamente caso não especificada)");
         return 0;
     }
 
     //Usamos o mesmo gerador durante todo o tempo
-    var gerador = new geradorAleatorio( seed );
-    for( var i = 0 ; i < 1 ; i ++){
+    var gerador = new geradorAleatorio( $("#seed").val() )
+        for( var i = 0 ; i < 1 ; i ++){
         iniciaFila( taxa_de_utilizacao , disciplina , gerador );
     }
 
