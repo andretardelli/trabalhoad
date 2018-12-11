@@ -11,18 +11,12 @@ function Fila( _disciplina_de_atendimento )
 
         //Caso 'First come first service'
         if( this.disciplina == "FCFS" ){
-            
             //Simplesmente vai pro final da fila
             this.array.push( newElement );
-            
-
-            //Acho que não tem problema não usar sort toda hora que insere
-            //this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
         }
         else
         //Caso 'Last come first service'
         if( this.disciplina == "LCFS" ){
-            
             //Caso fila vazia, entra na posição 0
             if( this.array.length == 0 ){
                 this.array.push( newElement );
@@ -31,10 +25,6 @@ function Fila( _disciplina_de_atendimento )
             else{
                 this.array.splice(1,0,newElement);
             }
-            
-            //Acho que não tem problema não usar sort toda hora que insere
-            //No caso de LCFS, usar sort sempre é um problema (pode interromper o serviço atual)
-            //this.array.sort(function(a, b){return a.eventStartTime- b.eventStartTime});
         }
     };
     //Remove o elemento 0 da fila e o retorna.
@@ -93,7 +83,8 @@ function varianciaTempoEmEspera( array_de_pessoas ){
     var M = mediaTempoEmEspera(array_de_pessoas);
     for( var i = 0 ; i < array_de_pessoas.length ; i++ ){
         var tempo_em_fila = array_de_pessoas[i].tempoDeChegadaEmServico - array_de_pessoas[i].tempoDeChegada;
-        V += Math.pow( Math.abs( tempo_em_fila - M ) , 2 );
+        console.log("tempo em fila:" + tempo_em_fila)
+        V += Math.pow( tempo_em_fila - M , 2 );
     }
     return ( V / ( array_de_pessoas.length - 1 ) );
 }

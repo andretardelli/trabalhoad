@@ -1,7 +1,8 @@
 function simulacaoCompleta( ){
     var disciplina = $("#discipline").val();
     var taxa_de_utilizacao = $("#taxaUtilizacao").val();
-    
+    var k_min =  parseInt($("#kmin").val())
+
     if( $("#taxaUtilizacao").val() == "" || $("#mu").val() == "" || $("#kmin").val() == "" ){
         alert("Preencha todos os campos antes de executar o simulador! (Com exceção da seed, que será gerada uma internamente caso não especificada)");
         return 0;
@@ -10,15 +11,15 @@ function simulacaoCompleta( ){
     //Usamos o mesmo gerador durante todo o tempo
     var gerador = new geradorAleatorio( $("#seed").val() )
         for( var i = 0 ; i < 1 ; i ++){
-        iniciaFila( taxa_de_utilizacao , disciplina , gerador );
+        iniciaFila( taxa_de_utilizacao , disciplina , k_min , gerador );
     }
 
 }
 
-function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
-    const   lambda = 0.20;               // TO-DO: usar formula pra pegar lambda
+function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , gerador ){
+    const   lambda = 0.50;               // TO-DO: usar formula pra pegar lambda
     const   mi = 1.0;                   // Constante 1 pelo enunciado
-    const   numeroMinimoDeColetas = 15; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
+    const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
     const   numeroTotalRodadas = 3200;
     var     fila = new Fila( disciplina_de_atendimento );
     
@@ -38,8 +39,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
 
     // Variáveis coletadas      
     var     pessoasPorRodada = [];       // É um vetor de pessoas para cada rodada. Cada pessoa tem os dados que usaremos no fim.
-    var     tempoPorRodada = [];         // Duracao de cada rodada
-    var     tempoOciosoPorRodada = []; 
+    var     temposDeRodada = [];         // Duracao de cada rodada
+    var     temposOciososDeRodada = []; 
     var     areaTotalPorRodada = [];          // Area do grafico (pessoas x tempo), separado por rodadas
     var     areaEsperaPorRodada = [];          // Area do grafico (pessoas x tempo), separado por rodadas
     
@@ -47,8 +48,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     for( i = 0 ; i < numeroTotalRodadas ; i++ ){
         coletasPorRodada[i] = 0;
         pessoasPorRodada[i] = [];
-        tempoPorRodada[i] = 0;
-        tempoOciosoPorRodada[i] = 0;
+        temposDeRodada[i] = 0;
+        temposOciososDeRodada[i] = 0;
         areaTotalPorRodada[i]    = 0;
         areaEsperaPorRodada[i]    = 0;
     }
@@ -90,7 +91,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
                 }
                 //Se é a unica pessoa atualmente no sistema, contabilizamos o periodo ocioso que esta finalizou
                 else if( fila.array.length == 1 ){
-                    tempoOciosoPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior);
+                    temposOciososDeRodada[rodadaAtual] += (eventoAtual - eventoAnterior);
                 }
                 
                 //Checa se fim da rodada, pra guardar duração desta.
@@ -98,9 +99,9 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
                     
                     var inicioRodadaAtual = tempoFimTransiente;
                     for( i = 0 ; i < rodadaAtual ; i++ ){
-                        inicioRodadaAtual += tempoPorRodada[i];
+                        inicioRodadaAtual += temposDeRodada[i];
                     }
-                    tempoPorRodada[rodadaAtual] = eventoAtual - inicioRodadaAtual;
+                    temposDeRodada[rodadaAtual] = eventoAtual - inicioRodadaAtual;
                     
                     rodadaAtual++;
                 } 
@@ -134,7 +135,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
                     
                     //Caso seja a primeira rodada transiente, ou a variância foi maior do que a última
                     //rodada transiente, começamos outra rodada transiente
-                    if( rodadasTransientes <= 1 || varianciaFaseTransiente == null || _variancia >= varianciaFaseTransiente ){
+                    if( rodadasTransientes <= 10 || varianciaFaseTransiente == null || _variancia >= varianciaFaseTransiente ){
                         varianciaFaseTransiente = _variancia;
                         coletasEmFaseTransiente = [];
                         rodadasTransientes ++;
@@ -155,7 +156,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
                 areaTotalPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length + 1 /*Numero de pessoas antes dessa saida*/ );
                 //Se tinha pessoas na fila antes da saida, atualiza área de espera
                 if( fila.array.length > 0 ){
-                    areaEsperaPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length /*Numero de pessoas na fila antes dessa chegada*/ );
+                    areaEsperaPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length /*Numero de pessoas na fila antes dessa saida*/ );
                 }
                 saintesPosTransiente++;
             }
@@ -167,137 +168,117 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     console.log( pessoasPorRodada );
     
 
-    //  Alguns resultados que queremos da simulacao
-    var     tempoEsperaPorRodada = [];
-    var     mediaTempoEspera;
-    var     varianciaTempoEspera;
-    var     numeroTotalPorRodada = [];
-    var     mediaNumeroMedio;
-    var     varianciaNumeroMedio;
+    //  --------- Resultados que queremos calcular das coletas --------------
+    //  Tempo de espera -------------------------
+    var     mediasTempoEspera = []
+    var     varianciasTempoEspera = []
+    var     IC_mediaTempoEspera
+    var     IC_varianciaTempoEspera_tStudent
+    var     IC_varianciaTempoEspera_chi2
+    //  Numero de pessoas em fila ---------------
+    var     mediasNumeroEmFila = []
+    var     varianciasNumeroEmFila = []
+    var     IC_mediaNumeroEmFila
+    var     IC_varianciaNumeroFila_tStudent
+    var     IC_varianciaNumeroFila_chi2
+    // Outras variaveis que podem interessar ----
     var     taxaDeUtilizacaoPorRodada = [];
 
-    var tempoEsperaPorRodadaData = {
-        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
-        datasets: [{
-            // backgroundColor: window.chartColors.red,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }]
-    };
-    var numeroTotalPorRodadaData = {
-        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
-        datasets: [{
-            // backgroundColor: window.chartColors.red,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }]
-    };
-    var taxaDeUtilizacaoPorRodadaData = {
-        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
-        datasets: [{
-            // backgroundColor: window.chartColors.blue,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }]
-    };
-
-    var totalPessoasPorRodadaData = {
-        labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
-        datasets: [{
-            // backgroundColor: window.chartColors.blue,
-            borderWidth: 1,
-            lineTension: 0,
-            radius: 0,
-            data: []
-        }]
-    };
-
-
-
+    // Calculo dos resultados --------
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
         // Calculo do tempo medio por rodada, passando como parametro o array de pessoas da rodada
-        tempoEsperaPorRodada[r] = mediaTempoEmEspera( pessoasPorRodada[r] );
+        mediasTempoEspera[r] = mediaTempoEmEspera( pessoasPorRodada[r] );
+        varianciasTempoEspera[r] = varianciaTempoEmEspera( pessoasPorRodada[r] )
+
 
         //Calculo do numero medio de pessoas por rodada
-        numeroTotalPorRodada[r] = areaTotalPorRodada[r] / tempoPorRodada[r];
+        mediasNumeroEmFila[r] = areaEsperaPorRodada[r] / temposDeRodada[r];
 
         //Calculo da taxa de utilizacao por rodada:
-        taxaDeUtilizacaoPorRodada[r] = (tempoPorRodada[r] - tempoOciosoPorRodada[r]) / tempoPorRodada[r];
+        taxaDeUtilizacaoPorRodada[r] = (temposDeRodada[r] - temposOciososDeRodada[r]) / temposDeRodada[r];
     }
-
-    // Media dos tempos medios de todas as rodadas
-    mediaTempoEspera = media( tempoEsperaPorRodada );
-    // Variancia dos tempos medios de todas rodadas
-    varianciaTempoEspera = variancia( tempoEsperaPorRodada );
-
-    // Media do numero medio de pessoas por rodada
-    mediaNumeroMedio = media(numeroTotalPorRodada);
-    // Variancia do numero medio de pessoas por rodada
-    varianciaNumeroMedio = variancia( numeroTotalPorRodada );
-
-
-    //Printando tabelas de cada rodada e passando informacoes pra pltar o grafico
-
-    if ($("#grafico").val() =="sim"){
-        for( r = 0 ; r < numeroTotalRodadas ; r++ ){
-            
-            // $("#data").append("<h2>Rodada "+ r + "</h2>");:
-
-            //tabelaRodada+="<tr><td>Tempo Médio no sistema</td><td>"+tempoEsperaPorRodada[r]+"</td></tr>";
-            //tabelaRodada+="<tr><td>Número Médio de Pessoas</td><td>"+numeroTotalPorRodada[r]+"</td></tr>";
-            //tabelaRodada+="<tr><td>Taxa de Utilização</td><td>"+taxaDeUtilizacaoPorRodada[r]+"</td></tr>";
-            //tabelaRodada += "</table><br><br><br>";
-            //$("#data").append(tabelaRodada);
-            
-            //Grafico
-            addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
-            addDataToGraph({y : tempoEsperaPorRodada[r], x : r}, tempoEsperaPorRodadaData);
-            addDataToGraph({y : numeroTotalPorRodada[r],x : r}, numeroTotalPorRodadaData);
-            addDataToGraph({y : pessoasPorRodada[r].length,x : r}, totalPessoasPorRodadaData);
-
-            
-        }
-    }
-
-    var icmtemp = IC_tStudent( mediaTempoEspera , varianciaTempoEspera , numeroTotalRodadas);
-    var icmnum = IC_tStudent( mediaNumeroMedio , varianciaNumeroMedio , numeroTotalRodadas );
     
-    //var icvtemp = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1))
-    //var icvnum = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
-    //addIC(window.tempoEsperaPorRodadaChart, icmtemp[0], icmtemp[1]);
-    //addIC(window.numeroTotalPorRodadaChart, icmnum[0], icmnum[1]);
-    //console.log(icmtemp[0], icmtemp[1])
-    if ($("#grafico").val() =="sim"){
-        plotgraphs(tempoEsperaPorRodadaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, totalPessoasPorRodadaData, icmtemp, icmnum);
-    }
+    mediaTempoEspera        = media( mediasTempoEspera );
+    IC_mediaTempoEspera                 = IC_tStudent( mediasTempoEspera );
+    IC_varianciaTempoEspera_tStudent    = IC_tStudent( varianciasTempoEspera )
+    IC_varianciaTempoEspera_chi2        = IC_chiSquare( mediasTempoEspera )
 
-    // $("#data").append("<h3>Rodadas transientes:<br>"+ rodadasTransientes + "</h3>");
-    // $("#data").append("<h3>Media do tempo em espera:<br>"+ mediaTempoEspera + "</h3>");
-    // $("#data").append("<h3>Variancia do tempo de espera:<br>"+ varianciaTempoEspera + "</h3>");
-    // $("#data").append("<h3>Media do numero de pessoas em fila:<br>"+ mediaNumeroMedio + "</h3>");
-    // $("#data").append("<h3>Variancia do numero de pessoas em fila:<br>"+ varianciaNumeroMedio + "</h3>");
-    // $("#data").append("<h3>IC do tempo medio de espera:<br>"+ icmtemp[0] + " -- " + icmtemp[1] + "<br>(precisao de "+100*precisaoIC(icmtemp)+"% ) <br>" + "</h3>");
-    // $("#data").append("<h3>IC do número medio:<br>"+ icmnum[0] + " -- " + icmnum[1] + "<br>(precisao de "+100*precisaoIC(icmnum)+"% ) <br>" + "</h3>");
-    
+    mediaNumeroEmFila = media(mediasNumeroEmFila);
+    IC_mediaNumeroEmFila            = IC_tStudent( mediasNumeroEmFila );
+    IC_varianciaNumeroFila_tStudent = IC_tStudent( varianciasNumeroEmFila );
+    IC_varianciaNumeroFila_chi2     = IC_chiSquare( mediasNumeroEmFila );
+
+    //Printa tabela sobre a simulacao
     $("#data").append("<h3>Estatísticas:<br></h3>");
     var tabelaFinal = "<table class='table table-striped table-bordered'><tbody>" //<thead><tr><td colspan='2'> Estatísticas</td></tr></thead>
     tabelaFinal+= "<tr><td class='bold'>Rodadas Transientes:</td><td>"+rodadasTransientes+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Média do Tempo em Espera:</td><td>"+mediaTempoEspera+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Variância do Tempo de Espera:</td><td>"+varianciaTempoEspera+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Média do Número de Pessoas em Fila:</td><td>"+mediaNumeroMedio+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Variância do Número de Pessoas em Fila:</td><td>"+varianciaNumeroMedio+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC do Tempo Médio de espera:</td><td>"+icmtemp[0] + " -- " + icmtemp[1]+ " ( Precisão de "+100*precisaoIC(icmtemp)+"% )</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC do Número Médio:</td><td>"+icmnum[0] + " -- " + icmnum[1] + " ( Precisão de "+100*precisaoIC(icmnum)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Média do Tempo em Espera:</td><td>"+media(mediasTempoEspera)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da média do tempo de espera:</td><td>"+IC_mediaTempoEspera[0] + " -- " + IC_mediaTempoEspera[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaTempoEspera)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(t-student):</td><td>"+IC_varianciaTempoEspera_tStudent[0] + " -- " + IC_varianciaTempoEspera_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_tStudent)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(chi-quadrado):</td><td>"+IC_varianciaTempoEspera_chi2[0] + " -- " + IC_varianciaTempoEspera_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_chi2)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Média do Número de Pessoas em Fila:</td><td>"+media(mediasNumeroEmFila)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da média do número de pessoas em fila:</td><td>"+IC_mediaNumeroEmFila[0] + " -- " + IC_mediaNumeroEmFila[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaNumeroEmFila)+"% )</td></tr>";
+    //tabelaFinal+= "<tr><td class='bold'>IC da variância do número de pessoas em fila(t-student):</td><td>"+IC_varianciaNumeroFila_tStudent[0] + " -- " + IC_varianciaNumeroFila_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaNumeroFila_tStudent)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da variância do número de pessoas em fila(chi-quadrado):</td><td>"+IC_varianciaNumeroFila_chi2[0] + " -- " + IC_varianciaNumeroFila_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaNumeroFila_chi2)+"% )</td></tr>";
     tabelaFinal+="</tbody></table>";
-
     $("#data").append(tabelaFinal);
     $("#data").append("<br><br><br><br>");
+
+    //Passando informacoes pra plotar o grafico, se pedido
+    if ($("#grafico").val() =="sim"){
+
+        // Estruturas pra criação do gráfico
+        var mediasTempoEsperaData = {
+            labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+            datasets: [{
+                // backgroundColor: window.chartColors.red,
+                borderWidth: 1,
+                lineTension: 0,
+                radius: 0,
+                data: []
+            }]
+        };
+        var numeroTotalPorRodadaData = {
+            labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+            datasets: [{
+                // backgroundColor: window.chartColors.red,
+                borderWidth: 1,
+                lineTension: 0,
+                radius: 0,
+                data: []
+            }]
+        };
+        var taxaDeUtilizacaoPorRodadaData = {
+            labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+            datasets: [{
+                // backgroundColor: window.chartColors.blue,
+                borderWidth: 1,
+                lineTension: 0,
+                radius: 0,
+                data: []
+            }]
+        };
+        var totalPessoasPorRodadaData = {
+            labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+            datasets: [{
+                // backgroundColor: window.chartColors.blue,
+                borderWidth: 1,
+                lineTension: 0,
+                radius: 0,
+                data: []
+            }]
+        };
+
+        for( r = 0 ; r < numeroTotalRodadas ; r++ ){
+            //Grafico
+            addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
+            addDataToGraph({y : mediasTempoEspera[r], x : r}, mediasTempoEsperaData);
+            addDataToGraph({y : mediasNumeroEmFila[r],x : r}, numeroTotalPorRodadaData);
+            addDataToGraph({y : pessoasPorRodada[r].length,x : r}, totalPessoasPorRodadaData);            
+        }
+
+        plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, totalPessoasPorRodadaData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
+    }
 
     return
 }
