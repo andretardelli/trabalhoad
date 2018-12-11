@@ -27,7 +27,7 @@ function addIC(tipoGrafico, icmin, icmax){
 };
 
 //window.onload = function() {
-function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, IcTempo, IcNum){
+function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, totalPessoasPorRodadaData, IcTempo, IcNum){
     var ctx = document.getElementById('graph1').getContext('2d');
     console.log(IcTempo, IcNum);
     window.tempoMedioPorRodadaChart = new Chart(ctx, {
@@ -124,5 +124,34 @@ function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUti
             }
         }
     });
+
+    var ctx4 = document.getElementById('graph4').getContext('2d');
+    window.totalPessoasPorRodadaDataChart = new Chart(ctx4, {
+        type: 'scatter',
+        data: totalPessoasPorRodadaData,
+        options: {
+            responsive: true,
+            showLines: true,
+            legend: {
+                display: false,
+            },
+            title: {
+                display: true,
+                text: 'Número total de pessoas por rodada'
+            },
+            scales: {
+               yAxes: [{
+                        ticks: {
+                            min: 0, // minimum value
+                        }
+               }]
+            }
+        }
+    });
+
+
+
+
+
 
 };

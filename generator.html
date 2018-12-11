@@ -1,20 +1,19 @@
 <!DOCTYPE html>
     <head>
         <meta charset="UTF-8"> 
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-        <link href="bootstrap.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <link href="assets/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="generator.css">
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                 <div class="textoNavbar">Trabalho de avaliação e desempenho. - Simulação de fila M/M/1</div>
         </nav>
-
             <div class ="container">
                     <div class="col-md-12">
                         <h2 class="title-text">Preencha os Parâmetros de entrada</h2>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12" style="margin-bottom:50px;">
                         <div class = "row">
                                 <div class = "col-md-3" style="margin-top: 40px;">
                                         <label> Taxa de Utilização: </label>
@@ -36,14 +35,34 @@
                                         <div><button type="submit" style="margin-bottom:10px" id="simula" onclick="simulacaoCompleta()" class="btn btn-primary">Executar</button></div>
                                 </div>
                         </div>    
+
+                        <div class = "row">
+                            <div class = "col-md-3" style="margin-top: 40px;">
+                                    <label> K-min: </label>
+                                    <input class="form-control"  type="number" id="kmin" value="0.9">
+                            </div>
+                            <div class = "col-md-3" style="margin-top: 40px;">
+                                    <label for="seed"> Semente Inicial (Inteiro) </label>
+                                    <input class="form-control" type="number" id="seed" oninput="this.value=(parseInt(this.value)||0)" placeholder="0-9" value="1">
+                            </div>
+                            <div class = "col-md-3" style="margin-top: 40px;">
+                                <label for="grafico"> Plotar Gráficos? </label>
+                                            <select class="form-control" id="grafico">
+                                                <option value="sim" selected>Sim</option>
+                                                <option value="nao">Não</option>
+                                            </select>
+                            </div>
+                            
+                    </div>    
                         
                         <div class = "row">
-                                <div class = "col-md-9" style="margin-top: 40px;">
+                                <div class = "col-md-9" style="margin-top: 40px;" id ="optionsBox">
                                         <label>Selecione a Forma de Visualização</label>
                                         <select class="form-control" id="options">
                                                 <option value="tempoMedio" selected>Tempo Médio de Espera por Rodada</option>
                                                 <option value="numeroMedio">Número Médio de Pessoas por Rodada</option>
                                                 <option value="taxaDeUtilização">Taxa Média de Utilização por Rodada</option>
+                                                <option value="numeroTotalPesssoas">Número Total de Pessoas por Rodada</option>
                                         </select>
                                 </div>
                                 
@@ -55,9 +74,11 @@
                                 <canvas id="graph1" ></canvas>
                                 <canvas id="graph2" style="display:none"></canvas>
                                 <canvas id="graph3" style="display:none"></canvas>
+                                <canvas id="graph4" style="display:none"></canvas>
                         </div>
                         <div id="data"></div>
                     </div>
+                    <br>
                 </div>
                
         </div>
@@ -72,19 +93,38 @@
                     $("#graph1").css("display","block");
                     $("#graph2").css("display","none");
                     $("#graph3").css("display","none");
+                    $("#graph4").css("display","none");
                 }
                 else if (this.value == "numeroMedio"){
                     $("#graph1").css("display","none");
                     $("#graph2").css("display","block");
                     $("#graph3").css("display","none");
+                    $("#graph4").css("display","none");
                 }
                 else if (this.value == "taxaDeUtilização"){
                     $("#graph1").css("display","none");
                     $("#graph2").css("display","none");
                     $("#graph3").css("display","block");
+                    $("#graph4").css("display","none");
+                }
+                else if (this.value == "numeroTotalPesssoas"){
+                    $("#graph1").css("display","none");
+                    $("#graph2").css("display","none");
+                    $("#graph3").css("display","none");
+                    $("#graph4").css("display","block");
                 }
             });
 
+             $("#grafico").on("change", function(){
+                if (this.value == "sim"){
+                    $("#optionsBox").css("display","block");
+                    $(".chartarea").css("display","block");
+                }
+                else if (this.value == "nao"){
+                    $("#optionsBox").css("display","none");
+                    $(".chartarea").css("display","none");
+                }
+            });
         </script>
     </body>
         <script src="assets/Chart.bundle.min.js"></script>
@@ -92,7 +132,7 @@
         <script type="text/javascript" src="auxiliary.js"></script>
         <script type="text/javascript" src="generator.js"></script>
         <script type="text/javascript" src="Random.js"></script>
-        <script src="bootstrap.min.js"></script>
+        <script src="assets/bootstrap.min.js"></script>
         <script type="text/javascript" src="intervalosConf.js"></script>
-        <script type="text/javascript" src="chartjs-plugin-annotation.js"></script>
+        <script type="text/javascript" src="assets/chartjs-plugin-annotation.js"></script>
 </html>
