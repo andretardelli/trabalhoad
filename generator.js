@@ -1,26 +1,20 @@
 function simulacaoCompleta( seed = null /* Se null, usa Date.getTime() */ ){
-    //var     disciplinas = [ "FCFS" , "LCFS" ]
-    //var     taxas_de_utilizacao = [ 0.2 , 0.4 , 0.6 , 0.8 , 0.9 ]
-    var     disciplina = $("#discipline").val();
-    // var     taxas_de_utilizacao = [ 0.9 ];
+    var disciplina = $("#discipline").val();
     var taxa_de_utilizacao = $("#taxaUtilizacao").val();
     
-    //Usamos o mesmo gerador para todas as filas
+    //Usamos o mesmo gerador durante todo o tempo
     var gerador = new geradorAleatorio( seed );
+    for( var i = 0 ; i < 1 ; i ++){
+        iniciaFila( taxa_de_utilizacao , disciplina , gerador );
+    }
 
-    // for( var d in disciplinas ){
-        // for( var t in taxas_de_utilizacao ){
-            // iniciaFila( taxas_de_utilizacao[t] , disciplinas[d] , gerador );
-            iniciaFila( taxa_de_utilizacao , disciplina , gerador );
-        // }
-    // }
 }
 
 function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
-    const   lambda = 0.50               // TO-DO: usar formula pra pegar lambda
-    const   mi = $("#mu").val();                   // Constante 1 pelo enunciado
-    const   numeroMinimoDeColetas = 5000 // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
-    const   numeroTotalRodadas = 320
+    const   lambda = 0.20               // TO-DO: usar formula pra pegar lambda
+    const   mi = 1.0;                   // Constante 1 pelo enunciado
+    const   numeroMinimoDeColetas = 15 // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
+    const   numeroTotalRodadas = 3200
     var     fila = new Fila( disciplina_de_atendimento )
     
     // Variáveis de controle:
@@ -31,6 +25,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     var     tempoFimTransiente
     var     coletasEmFaseTransiente = []    //Usaremos no critério de fim da fase transiente
     var     varianciaFaseTransiente = null  //Usaremos no critério de fim da fase transiente
+    var     rodadasTransientes = 1          //Usaremos no critério de fim da fase transiente
     var     coletasPorRodada = []       //Numero de entradas em cada rodada, inicialmente tudo 0.
     var     proximaChegada = gerador.exponential( lambda )   // Agendamos a primeira chegada
     var     proximaSaida = proximaChegada + gerador.exponential( mi )  // Já podemos agendar a primeira saida
@@ -40,7 +35,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
     var     pessoasPorRodada = []       // É um vetor de pessoas para cada rodada. Cada pessoa tem os dados que usaremos no fim.
     var     tempoPorRodada = []         // Duracao de cada rodada
     var     tempoOciosoPorRodada = [] 
-    var     areaPorRodada = []          // Area do grafico (pessoas x tempo), separado por rodadas
+    var     areaTotalPorRodada = []          // Area do grafico (pessoas x tempo), separado por rodadas
+    var     areaEsperaPorRodada = []          // Area do grafico (pessoas x tempo), separado por rodadas
     
     // Inicializa variaveis iniciais (vazias)
     for( i = 0 ; i < numeroTotalRodadas ; i++ ){
@@ -48,7 +44,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         pessoasPorRodada[i] = []
         tempoPorRodada[i] = 0;
         tempoOciosoPorRodada[i] = 0;
-        areaPorRodada[i]    = 0;
+        areaTotalPorRodada[i]    = 0;
+        areaEsperaPorRodada[i]    = 0;
     }
 
     //Primeira chegada
@@ -68,18 +65,29 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
         //Caso proximo evento seja de entrada:
         if( proximaChegada < proximaSaida ){
             eventoAtual = proximaChegada;
-            //document.writeln("Entrada: " + eventoAtual + "<br>" )
-            fila.push( new Pessoa( proximaChegada , rodadaAtual ) );
+            var pessoaEntrante = new Pessoa( proximaChegada , rodadaAtual ) 
+            fila.push( pessoaEntrante );
             proximaChegada = proximaChegada + gerador.exponential( lambda );
+            
+            //Se é a única pessoa na fila, entra logo em serviço
+            if( fila.array.length == 1 ){
+                pessoaEntrante.tempoDeChegadaEmServico = eventoAtual
+            }
+
             //Se não esta em fase transiente, contabiliza entrante e atualizamos area:
             if( !emFaseTransiente && rodadaAtual < numeroTotalRodadas ){
                 entrantesPosTransiente++;
                 coletasPorRodada[rodadaAtual]++;
-                areaPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length - 1 /*Numero de pessoas antes dessa chegada*/ );
+                areaTotalPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length - 1 /*Numero de pessoas antes dessa chegada*/ );
+                //Se tinha pessoas na fila antes da chegada, atualiza área de espera
+                if( fila.array.length > 2 ){
+                    areaEsperaPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length - 2 /*Numero de pessoas na fila antes dessa chegada*/ );
+                }
                 //Se é a unica pessoa atualmente no sistema, contabilizamos o periodo ocioso que esta finalizou
-                if( fila.array.length == 1 ){
+                else if( fila.array.length == 1 ){
                     tempoOciosoPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior);
                 }
+                
                 //Checa se fim da rodada, pra guardar duração desta.
                 if( coletasPorRodada[rodadaAtual] >= numeroMinimoDeColetas ){
                     
@@ -117,13 +125,14 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
                 coletasEmFaseTransiente.push( pessoaSainte )
                 //Se já finalizamos uma "rodada" transiente com K_min de coletas, avaliamos sua variancia
                 if( coletasEmFaseTransiente.length >= numeroMinimoDeColetas ){
-                    var variancia = varianciaTempoEmFila( coletasEmFaseTransiente )
+                    var _variancia = varianciaTempoEmEspera( coletasEmFaseTransiente )
                     
                     //Caso seja a primeira rodada transiente, ou a variância foi maior do que a última
                     //rodada transiente, começamos outra rodada transiente
-                    if( true && (varianciaFaseTransiente == null || variancia >= varianciaFaseTransiente) ){
-                        varianciaFaseTransiente = variancia
+                    if( rodadasTransientes <= 1 || varianciaFaseTransiente == null || _variancia >= varianciaFaseTransiente ){
+                        varianciaFaseTransiente = _variancia
                         coletasEmFaseTransiente = []
+                        rodadasTransientes ++
                     }
                     //Caso a variancia da rodada transiente atual diminuiu em relação a anterior,
                     //consideramos a fase transiente finalizada
@@ -138,7 +147,11 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
             //Se a pessoa entrou pós fase transiente, contabiliza na coleta da rodada dela 
             else if( pessoaSainte.rodada >= 0 &&  pessoaSainte.rodada < numeroTotalRodadas ){
                 pessoasPorRodada[ pessoaSainte.rodada ].push( pessoaSainte )
-                areaPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length + 1 /*Numero de pessoas antes dessa saida*/ )
+                areaTotalPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length + 1 /*Numero de pessoas antes dessa saida*/ )
+                //Se tinha pessoas na fila antes da saida, atualiza área de espera
+                if( fila.array.length > 0 ){
+                    areaEsperaPorRodada[rodadaAtual] += (eventoAtual - eventoAnterior)*( fila.array.length /*Numero de pessoas na fila antes dessa chegada*/ );
+                }
                 saintesPosTransiente++
             }
 
@@ -146,20 +159,19 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
 
     }
     //------------------------------------- FIM DA SIMULACAO ---------------------------------------
+    console.log( pessoasPorRodada )
+    
 
-
-    //  Resultados que queremos da simulacao
-    var     tempoMedioPorRodada = [];
-    var     numeroMedioPorRodada = [];
+    //  Alguns resultados que queremos da simulacao
+    var     tempoEsperaPorRodada = [];
+    var     mediaTempoEspera;
+    var     varianciaTempoEspera;
+    var     numeroTotalPorRodada = [];
+    var     mediaNumeroMedio;
+    var     varianciaNumeroMedio;
     var     taxaDeUtilizacaoPorRodada = [];
 
-    // Calculo das variaveis estatisticas
-    var summtemp = 0.0;
-    var sumvtemp = 0.0;
-    var summnum = 0.0;
-    var sumvnum = 0.0;
-
-    var tempoMedioPorRodadaData = {
+    var tempoEsperaPorRodadaData = {
         labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
         datasets: [{
             // backgroundColor: window.chartColors.red,
@@ -169,8 +181,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
             data: []
         }]
     };
-
-    var numeroMedioPorRodadaData = {
+    var numeroTotalPorRodadaData = {
         labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
         datasets: [{
             // backgroundColor: window.chartColors.red,
@@ -180,7 +191,6 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
             data: []
         }]
     };
-
     var taxaDeUtilizacaoPorRodadaData = {
         labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
         datasets: [{
@@ -191,50 +201,70 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , gerador ){
             data: []
         }]
     };
-    for( r = 0 ; r < numeroTotalRodadas ; r++ ){
-        
-        // Calculo do tempo medio por rodada. Media do tempo de estadia para cada pessoa
-        $("#data").append("<h2>Rodada "+ r + "</h2>");
-        var tabelaRodada = "<table border='1'>";
 
-        tempoMedioPorRodada[r] = mediaTempoEmFila( pessoasPorRodada[r] )
-        tabelaRodada+="<tr><td>Tempo Médio de Serviço</td><td>"+tempoMedioPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : tempoMedioPorRodada[r], x : r}, tempoMedioPorRodadaData);
+    for( r = 0 ; r < numeroTotalRodadas ; r++ ){
+        // Calculo do tempo medio por rodada, passando como parametro o array de pessoas da rodada
+        tempoEsperaPorRodada[r] = mediaTempoEmEspera( pessoasPorRodada[r] )
 
         //Calculo do numero medio de pessoas por rodada
-        numeroMedioPorRodada[r] = areaPorRodada[r] / pessoasPorRodada[r].length
-        tabelaRodada+="<tr><td>Número Médio de Pessoas</td><td>"+numeroMedioPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : numeroMedioPorRodada[r],x : r}, numeroMedioPorRodadaData);
+        numeroTotalPorRodada[r] = areaTotalPorRodada[r] / tempoPorRodada[r]
 
         //Calculo da taxa de utilizacao por rodada:
         taxaDeUtilizacaoPorRodada[r] = (tempoPorRodada[r] - tempoOciosoPorRodada[r]) / tempoPorRodada[r]
-        tabelaRodada+="<tr><td>Taxa de Utilização</td><td>"+taxaDeUtilizacaoPorRodada[r]+"</td></tr>";
-        addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
-
-        // tabelaRodada+="<tr><td>Duração</td><td>"+duracaoRodadas[r]+"</td></tr>";
-        // tabelaRodada+="<tr><td>Tempo Ocioso</td><td>"+tempoOciosoPorRodada[r]+"</td></tr>";
-
-        tabelaRodada += "</table><br><br><br>";
-        $("#data").append(tabelaRodada);
-
-        //$("#data").append( "duracaoRodada(rodada " + r + "):......." + tempoPorRodada[r] + "<br>")
-        //$("#data").append( "tempoOcioso(rodada " + r + "):.........." + tempoOciosoPorRodada[r] + "<br>")
-        //$("#data").append( "<br><br><br>")
-        summtemp = Number(summtemp) + Number(tempoMedioPorRodada[r]);
-        summnum = Number(summnum) + Number(numeroMedioPorRodada[r]);
-    }    
-    for( r = 0 ; r < numeroTotalRodadas ; r++ ){
-        sumvtemp = Number(sumvtemp) + Number(Math.pow((tempoMedioPorRodada[r] - summtemp/numeroTotalRodadas), 2));
-        sumvnum = Number(sumvnum) + Number(Math.pow(numeroMedioPorRodada[r], 2) - numeroTotalRodadas*Math.pow(summnum/numeroTotalRodadas, 2));
     }
-    var icmtemp = ICmedia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
+
+    // Media dos tempos medios de todas as rodadas
+    mediaTempoEspera = media( tempoEsperaPorRodada )
+    // Variancia dos tempos medios de todas rodadas
+    varianciaTempoEspera = variancia( tempoEsperaPorRodada ) 
+
+    // Media do numero medio de pessoas por rodada
+    mediaNumeroMedio = media(numeroTotalPorRodada)
+    // Variancia do numero medio de pessoas por rodada
+    varianciaNumeroMedio = variancia( numeroTotalPorRodada )
+
+
+    //Printando tabelas de cada rodada e passando informacoes pra pltar o grafico
+    for( r = 0 ; r < numeroTotalRodadas ; r++ ){
+        
+        //$("#data").append("<h2>Rodada "+ r + "</h2>");
+        //var tabelaRodada = "<table border='1'>";
+        //tabelaRodada+="<tr><td>Tempo Médio no sistema</td><td>"+tempoEsperaPorRodada[r]+"</td></tr>";
+        //tabelaRodada+="<tr><td>Número Médio de Pessoas</td><td>"+numeroTotalPorRodada[r]+"</td></tr>";
+        //tabelaRodada+="<tr><td>Taxa de Utilização</td><td>"+taxaDeUtilizacaoPorRodada[r]+"</td></tr>";
+        //tabelaRodada += "</table><br><br><br>";
+        //$("#data").append(tabelaRodada);
+        
+        //Grafico
+        addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
+        addDataToGraph({y : tempoEsperaPorRodada[r], x : r}, tempoEsperaPorRodadaData);
+        addDataToGraph({y : numeroTotalPorRodada[r],x : r}, numeroTotalPorRodadaData);
+    }
+
+
+    var icmtemp = IC_tStudent( mediaTempoEspera , varianciaTempoEspera , numeroTotalRodadas);
+    var icmnum = ICmedia( mediaNumeroMedio , varianciaNumeroMedio , numeroTotalRodadas );
+    
     //var icvtemp = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1))
-    var icmnum = ICmedia(summnum/numeroTotalRodadas, numeroTotalRodadas, sumvnum/(numeroTotalRodadas-1));
     //var icvnum = ICvariancia(summtemp/numeroTotalRodadas, numeroTotalRodadas, sumvtemp/(numeroTotalRodadas-1));
-    //addIC(window.tempoMedioPorRodadaChart, icmtemp[0], icmtemp[1]);
-    //addIC(window.numeroMedioPorRodadaChart, icmnum[0], icmnum[1]);
+    //addIC(window.tempoEsperaPorRodadaChart, icmtemp[0], icmtemp[1]);
+    //addIC(window.numeroTotalPorRodadaChart, icmnum[0], icmnum[1]);
     //console.log(icmtemp[0], icmtemp[1])
-    plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, icmtemp, icmnum);
+    
+    //plotgraphs(tempoEsperaPorRodadaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, icmtemp, icmnum);
+
+    //$("#data").append("<h3>Rodadas transientes:<br>"+ rodadasTransientes + "</h3>");
+    //$("#data").append("<h3>Media do tempo em espera:<br>"+ mediaTempoEspera + "</h3>");
+    //$("#data").append("<h3>Variancia do tempo de espera:<br>"+ varianciaTempoEspera + "</h3>");
+    //$("#data").append("<h3>Media do numero de pessoas em fila:<br>"+ mediaNumeroMedio + "</h3>");
+    //$("#data").append("<h3>Variancia do numero de pessoas em fila:<br>"+ varianciaNumeroMedio + "</h3>");
+    
+    $("#data").append("<h3>IC do tempo medio de espera:<br>"+ icmtemp[0] + " -- " + icmtemp[1] + "<br>(precisao de "+100*precisaoIC(icmtemp)+"% ) <br>" + "</h3>");
+    $("#data").append("<h3>IC do número medio:<br>"+ icmnum[0] + " -- " + icmnum[1] + "<br>(precisao de "+100*precisaoIC(icmnum)+"% ) <br>" + "</h3>");
+    
+    $("#data").append("<br><br><br><br>");
+
+    return
 
 }
 
