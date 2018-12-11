@@ -2,6 +2,7 @@
 function IC_tStudent( medidas ){
     
     var _media = media(medidas)
+    alert("media ta dando " + _media )
     var _variancia = variancia(medidas)
     //valores de z(1-a/2) e z(a/2) tirado da tabela para a=0.05
     //z(1-a/2) = -z(a/2)    
@@ -22,8 +23,8 @@ function IC_chiSquare( medidas ){
     var q1 = 3045.1056;
     var q2 = 3358.6827;
     
-    var min = 3200*_variancia/q2;
-    var max = 3200*_variancia/q1;
+    var min = _variancia*3200/q2;
+    var max = _variancia*3200/q1    ;
     
     return [min, max];
 }

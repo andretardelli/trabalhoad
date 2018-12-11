@@ -83,7 +83,6 @@ function varianciaTempoEmEspera( array_de_pessoas ){
     var M = mediaTempoEmEspera(array_de_pessoas);
     for( var i = 0 ; i < array_de_pessoas.length ; i++ ){
         var tempo_em_fila = array_de_pessoas[i].tempoDeChegadaEmServico - array_de_pessoas[i].tempoDeChegada;
-        console.log("tempo em fila:" + tempo_em_fila)
         V += Math.pow( tempo_em_fila - M , 2 );
     }
     return ( V / ( array_de_pessoas.length - 1 ) );

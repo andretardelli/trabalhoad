@@ -17,12 +17,13 @@ function simulacaoCompleta( ){
 }
 
 function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , gerador ){
-    const   lambda = 0.50;               // TO-DO: usar formula pra pegar lambda
+    const   lambda = 0.9;               // TO-DO: usar formula pra pegar lambda
     const   mi = 1.0;                   // Constante 1 pelo enunciado
     const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
     const   numeroTotalRodadas = 3200;
     var     fila = new Fila( disciplina_de_atendimento );
     
+
     // Variáveis de controle:
     var     rodadaAtual = -1;            // Ao término da fase transiente, muda para 0
     var     entrantesPosTransiente = 0;  // Quantos entraram pós fase transiente
@@ -71,7 +72,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
         //Caso proximo evento seja de entrada:
         if( proximaChegada < proximaSaida ){
             eventoAtual = proximaChegada;
-            var pessoaEntrante = new Pessoa( proximaChegada , rodadaAtual ); 
+            var pessoaEntrante = new Pessoa( eventoAtual , rodadaAtual ); 
             fila.push( pessoaEntrante );
             proximaChegada = proximaChegada + gerador.exponential( lambda );
             
@@ -165,7 +166,6 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
 
     }
     //------------------------------------- FIM DA SIMULACAO ---------------------------------------
-    console.log( pessoasPorRodada );
     
 
     //  --------- Resultados que queremos calcular das coletas --------------
@@ -186,10 +186,11 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
 
     // Calculo dos resultados --------
     for( r = 0 ; r < numeroTotalRodadas ; r++ ){
-        // Calculo do tempo medio por rodada, passando como parametro o array de pessoas da rodada
+
+        // Calculo da media e variancia do tempo de espera por rodada, passando como parametro o array de pessoas da rodada
         mediasTempoEspera[r] = mediaTempoEmEspera( pessoasPorRodada[r] );
         varianciasTempoEspera[r] = varianciaTempoEmEspera( pessoasPorRodada[r] )
-
+        console.log("variancia do tempo em espera: " + varianciasTempoEspera[r] )
 
         //Calculo do numero medio de pessoas por rodada
         mediasNumeroEmFila[r] = areaEsperaPorRodada[r] / temposDeRodada[r];
@@ -213,6 +214,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     var tabelaFinal = "<table class='table table-striped table-bordered'><tbody>" //<thead><tr><td colspan='2'> Estatísticas</td></tr></thead>
     tabelaFinal+= "<tr><td class='bold'>Rodadas Transientes:</td><td>"+rodadasTransientes+"</td></tr>";
     tabelaFinal+= "<tr><td class='bold'>Média do Tempo em Espera:</td><td>"+media(mediasTempoEspera)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Variância das medias do Tempo em Espera:</td><td>"+variancia(mediasTempoEspera)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Média das variâncias do Tempo em Espera:</td><td>"+media(varianciasTempoEspera)+"</td></tr>";
     tabelaFinal+= "<tr><td class='bold'>IC da média do tempo de espera:</td><td>"+IC_mediaTempoEspera[0] + " -- " + IC_mediaTempoEspera[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaTempoEspera)+"% )</td></tr>";
     tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(t-student):</td><td>"+IC_varianciaTempoEspera_tStudent[0] + " -- " + IC_varianciaTempoEspera_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_tStudent)+"% )</td></tr>";
     tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(chi-quadrado):</td><td>"+IC_varianciaTempoEspera_chi2[0] + " -- " + IC_varianciaTempoEspera_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_chi2)+"% )</td></tr>";
