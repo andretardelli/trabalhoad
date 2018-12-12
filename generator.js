@@ -20,7 +20,7 @@ function simulacaoCompleta( ){
 }
 
 function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , gerador ){
-    const   lambda = 0.9;               // TO-DO: usar formula pra pegar lambda
+    const   lambda = $("#taxaUtilizacao").val();               // TO-DO: usar formula pra pegar lambda
     const   mi = 1.0;                   // Constante 1 pelo enunciado
     const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
     const   numeroTotalRodadas = 3200;
@@ -151,7 +151,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
                     
                     // Caso ainda não tenha sido alcançado o número de quedas suficiente,
                     // começamos outra rodada transiente
-                    if( quedasVarianciaTransiente < 3 ){   
+                    if( quedasVarianciaTransiente < numeroTotalRodadas / 2.0 ){   
                         ultimaVarianciaTransiente = _variancia;
                         coletasEmFaseTransiente = [];
                         rodadasTransientes ++

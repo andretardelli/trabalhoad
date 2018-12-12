@@ -47,7 +47,7 @@ function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUti
             scales: {
                yAxes: [{
                         ticks: {
-                            min: 1.5, // minimum value
+                            min: 0.0, // minimum value
                         }
                }]
             },

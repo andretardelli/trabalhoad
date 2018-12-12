@@ -6,7 +6,7 @@ function Fila( _disciplina_de_atendimento )
     this.array = [];        // Array com todas as pessoas da fila (incluindo em serviço)
     this.disciplina = _disciplina_de_atendimento;   // "FCFS" ou "LCFS"
     this.contagem = []  // Array que diz quantas pessoas haviam na fila depois da n-ésima entrada
-    var n = 0;         // Numero de pessoas que ja entraram na fila
+    this.n = 0;         // Numero de pessoas que ja entraram na fila
     //Insere uma pessoa na fila, levando em conta a disciplina
     this.push = function(newElement)
     {
@@ -30,8 +30,8 @@ function Fila( _disciplina_de_atendimento )
         }
 
         //Atualizamos contagem[]
-        this.contagem[n] = this.array.length; 
-        n++;
+        this.contagem[this.n] = this.array.length; 
+        this.n = this.n + 1;
     };
     //Remove o elemento 0 da fila e o retorna.
     this.pop = function()
