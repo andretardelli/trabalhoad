@@ -2,7 +2,6 @@
 function IC_tStudent( medidas ){
     
     var _media = media(medidas)
-    alert("media ta dando " + _media )
     var _variancia = variancia(medidas)
     //valores de z(1-a/2) e z(a/2) tirado da tabela para a=0.05
     //z(1-a/2) = -z(a/2)    

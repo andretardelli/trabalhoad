@@ -21,7 +21,9 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     const   mi = 1.0;                   // Constante 1 pelo enunciado
     const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
     const   numeroTotalRodadas = 3200;
-    var     fila = new Fila( disciplina_de_atendimento );
+    var     fila = new Fila( disciplina_de_atendimento )
+    var     tempoInicioSimulacao = (new Date()).getMilliseconds()
+    
     
 
     // Variáveis de controle:
@@ -32,6 +34,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     var     tempoFimTransiente;
     var     coletasEmFaseTransiente = [];    //Usaremos no critério de fim da fase transiente
     var     varianciaFaseTransiente = null;  //Usaremos no critério de fim da fase transiente
+    var     quedasVarianciaTransiente = 0;   //Usaremos no critério de fim da fase transiente
     var     rodadasTransientes = 1;          //Usaremos no critério de fim da fase transiente
     var     coletasPorRodada = [];       //Numero de entradas em cada rodada, inicialmente tudo 0.
     var     proximaChegada = gerador.exponential( lambda );   // Agendamos a primeira chegada
@@ -56,7 +59,9 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     }
 
     //Primeira chegada
-    fila.push( new Pessoa( proximaChegada , -1 /*Rodada inexistente, pois ainda é fase transiente*/ ) );
+    var primeiraPessoa = new Pessoa( proximaChegada , -1 /*Rodada inexistente, pois ainda é fase transiente*/ ) 
+    primeiraPessoa.tempoDeChegadaEmServico = 0
+    fila.push( primeiraPessoa );
     //document.writeln("Entrada: " + proximaChegada + "<br>" )
     proximaChegada = proximaChegada + gerador.exponential( lambda ); // Já agendamos a segunda chegada
 
@@ -75,7 +80,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
             var pessoaEntrante = new Pessoa( eventoAtual , rodadaAtual ); 
             fila.push( pessoaEntrante );
             proximaChegada = proximaChegada + gerador.exponential( lambda );
-            
+
             //Se é a única pessoa na fila, entra logo em serviço
             if( fila.array.length == 1 ){
                 pessoaEntrante.tempoDeChegadaEmServico = eventoAtual;
@@ -134,16 +139,22 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
                 if( coletasEmFaseTransiente.length >= numeroMinimoDeColetas ){
                     var _variancia = varianciaTempoEmEspera( coletasEmFaseTransiente );
                     
-                    //Caso seja a primeira rodada transiente, ou a variância foi maior do que a última
-                    //rodada transiente, começamos outra rodada transiente
-                    if( rodadasTransientes <= 10 || varianciaFaseTransiente == null || _variancia >= varianciaFaseTransiente ){
+                    // Comparamos a variancia da rodada transiente atual com a anterior
+                    // para saber se podemos contabilizar uma queda de variância
+                    if(  varianciaFaseTransiente != null && _variancia >= varianciaFaseTransiente   ){
+                        quedasVarianciaTransiente++       
+                    }
+                    
+                    // Caso ainda não tenha sido alcançado o número de quedas suficiente,
+                    // começamos outra rodada transiente
+                    if( quedasVarianciaTransiente < 3 ){   
                         varianciaFaseTransiente = _variancia;
                         coletasEmFaseTransiente = [];
-                        rodadasTransientes ++;
+                        rodadasTransientes ++
                     }
-                    //Caso a variancia da rodada transiente atual diminuiu em relação a anterior,
-                    //consideramos a fase transiente finalizada
+                    //Caso contrário, terminamos a fase transiente
                     else{
+                        //alert("essa foi minha ultima variancia")
                         emFaseTransiente = false;
                         tempoFimTransiente = eventoAtual;
                         rodadaAtual = 0;
@@ -177,9 +188,9 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     var     IC_varianciaTempoEspera_chi2
     //  Numero de pessoas em fila ---------------
     var     mediasNumeroEmFila = []
-    var     varianciasNumeroEmFila = []
+    var     varianciasNumeroEmFila = [] // Não tem como calcular!
     var     IC_mediaNumeroEmFila
-    var     IC_varianciaNumeroFila_tStudent
+    var     IC_varianciaNumeroFila_tStudent // Não tem como calcular!
     var     IC_varianciaNumeroFila_chi2
     // Outras variaveis que podem interessar ----
     var     taxaDeUtilizacaoPorRodada = [];
@@ -190,7 +201,6 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
         // Calculo da media e variancia do tempo de espera por rodada, passando como parametro o array de pessoas da rodada
         mediasTempoEspera[r] = mediaTempoEmEspera( pessoasPorRodada[r] );
         varianciasTempoEspera[r] = varianciaTempoEmEspera( pessoasPorRodada[r] )
-        console.log("variancia do tempo em espera: " + varianciasTempoEspera[r] )
 
         //Calculo do numero medio de pessoas por rodada
         mediasNumeroEmFila[r] = areaEsperaPorRodada[r] / temposDeRodada[r];
@@ -209,23 +219,6 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     IC_varianciaNumeroFila_tStudent = IC_tStudent( varianciasNumeroEmFila );
     IC_varianciaNumeroFila_chi2     = IC_chiSquare( mediasNumeroEmFila );
 
-    //Printa tabela sobre a simulacao
-    $("#data").append("<h3>Estatísticas:<br></h3>");
-    var tabelaFinal = "<table class='table table-striped table-bordered'><tbody>" //<thead><tr><td colspan='2'> Estatísticas</td></tr></thead>
-    tabelaFinal+= "<tr><td class='bold'>Rodadas Transientes:</td><td>"+rodadasTransientes+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Média do Tempo em Espera:</td><td>"+media(mediasTempoEspera)+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Variância das medias do Tempo em Espera:</td><td>"+variancia(mediasTempoEspera)+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Média das variâncias do Tempo em Espera:</td><td>"+media(varianciasTempoEspera)+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC da média do tempo de espera:</td><td>"+IC_mediaTempoEspera[0] + " -- " + IC_mediaTempoEspera[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaTempoEspera)+"% )</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(t-student):</td><td>"+IC_varianciaTempoEspera_tStudent[0] + " -- " + IC_varianciaTempoEspera_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_tStudent)+"% )</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(chi-quadrado):</td><td>"+IC_varianciaTempoEspera_chi2[0] + " -- " + IC_varianciaTempoEspera_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_chi2)+"% )</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>Média do Número de Pessoas em Fila:</td><td>"+media(mediasNumeroEmFila)+"</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC da média do número de pessoas em fila:</td><td>"+IC_mediaNumeroEmFila[0] + " -- " + IC_mediaNumeroEmFila[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaNumeroEmFila)+"% )</td></tr>";
-    //tabelaFinal+= "<tr><td class='bold'>IC da variância do número de pessoas em fila(t-student):</td><td>"+IC_varianciaNumeroFila_tStudent[0] + " -- " + IC_varianciaNumeroFila_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaNumeroFila_tStudent)+"% )</td></tr>";
-    tabelaFinal+= "<tr><td class='bold'>IC da variância do número de pessoas em fila(chi-quadrado):</td><td>"+IC_varianciaNumeroFila_chi2[0] + " -- " + IC_varianciaNumeroFila_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaNumeroFila_chi2)+"% )</td></tr>";
-    tabelaFinal+="</tbody></table>";
-    $("#data").append(tabelaFinal);
-    $("#data").append("<br><br><br><br>");
 
     //Passando informacoes pra plotar o grafico, se pedido
     if ($("#grafico").val() =="sim"){
@@ -282,6 +275,26 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
 
         plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, totalPessoasPorRodadaData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
     }
+
+    var tempoFimDaSimulacao = (new Date()).getMilliseconds()
+    //Printa tabela sobre a simulacao
+    $("#data").append("<h3>Estatísticas:<br></h3>");
+    var tabelaFinal = "<table class='table table-striped table-bordered'><tbody>" //<thead><tr><td colspan='2'> Estatísticas</td></tr></thead>
+    tabelaFinal+= "<tr><td class='bold'>Tempo real de processamento da fila(ms):</td><td>"+ (tempoFimDaSimulacao - tempoInicioSimulacao) +"ms</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Rodadas Transientes:</td><td>"+rodadasTransientes+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Média do Tempo em Espera:</td><td>"+media(mediasTempoEspera)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Variância das medias do Tempo em Espera:</td><td>"+variancia(mediasTempoEspera)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Média das variâncias do Tempo em Espera:</td><td>"+media(varianciasTempoEspera)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da média do tempo de espera:</td><td>"+IC_mediaTempoEspera[0] + " -- " + IC_mediaTempoEspera[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaTempoEspera)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(t-student):</td><td>"+IC_varianciaTempoEspera_tStudent[0] + " -- " + IC_varianciaTempoEspera_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_tStudent)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da variância do tempo de espera(chi-quadrado):</td><td>"+IC_varianciaTempoEspera_chi2[0] + " -- " + IC_varianciaTempoEspera_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaTempoEspera_chi2)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>Média do Número de Pessoas em Fila:</td><td>"+media(mediasNumeroEmFila)+"</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da média do número de pessoas em fila:</td><td>"+IC_mediaNumeroEmFila[0] + " -- " + IC_mediaNumeroEmFila[1]+ " ( Precisão de "+100*precisaoIC(IC_mediaNumeroEmFila)+"% )</td></tr>";
+    //tabelaFinal+= "<tr><td class='bold'>IC da variância do número de pessoas em fila(t-student):</td><td>"+IC_varianciaNumeroFila_tStudent[0] + " -- " + IC_varianciaNumeroFila_tStudent[1] + " ( Precisão de "+100*precisaoIC(IC_varianciaNumeroFila_tStudent)+"% )</td></tr>";
+    tabelaFinal+= "<tr><td class='bold'>IC da variância do número de pessoas em fila(chi-quadrado):</td><td>"+IC_varianciaNumeroFila_chi2[0] + " -- " + IC_varianciaNumeroFila_chi2[1]+ " ( Precisão de "+100*precisaoIC(IC_varianciaNumeroFila_chi2)+"% )</td></tr>";
+    tabelaFinal+="</tbody></table>";
+    $("#data").append(tabelaFinal);
+    $("#data").append("<br><br><br><br>");
 
     return
 }

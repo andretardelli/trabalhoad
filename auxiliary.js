@@ -62,30 +62,27 @@ function variancia( array_de_numeros ){
     var V = 0;
     var M = media( array_de_numeros );
     for( var i = 0 ; i < array_de_numeros.length ; i ++ ){
-        V += Math.pow( Math.abs(array_de_numeros[i] - M) , 2 );
+        V += Math.pow( Math.abs(array_de_numeros[i] - M) , 2 ) ;
     }
-    return ( V / (array_de_numeros.length - 1) );
+    return ( V / array_de_numeros.length );
 }
 
 //Passando um array com objetos da classe 'Pessoa', retorna a media do tempo na fila de espera
 function mediaTempoEmEspera( array_de_pessoas ){
-    var M = 0;
+    var temposDeEspera = []
     for( var i = 0 ; i < array_de_pessoas.length ; i++ ){
-        var tempo_em_fila = array_de_pessoas[i].tempoDeChegadaEmServico - array_de_pessoas[i].tempoDeChegada;
-        M += tempo_em_fila;
+        temposDeEspera[i] = array_de_pessoas[i].tempoDeChegadaEmServico - array_de_pessoas[i].tempoDeChegada;
     }
-    return ( M / array_de_pessoas.length );
+    return media( temposDeEspera )
 }
 
 //Passando um array com objetos da classe 'Pessoa', retorna a variancia do tempo na fila de espera
 function varianciaTempoEmEspera( array_de_pessoas ){
-    var V = 0;
-    var M = mediaTempoEmEspera(array_de_pessoas);
+    var temposDeEspera = []
     for( var i = 0 ; i < array_de_pessoas.length ; i++ ){
-        var tempo_em_fila = array_de_pessoas[i].tempoDeChegadaEmServico - array_de_pessoas[i].tempoDeChegada;
-        V += Math.pow( tempo_em_fila - M , 2 );
+        temposDeEspera[i] = array_de_pessoas[i].tempoDeChegadaEmServico - array_de_pessoas[i].tempoDeChegada;
     }
-    return ( V / ( array_de_pessoas.length - 1 ) );
+    return variancia( temposDeEspera )
 }
 
 
