@@ -39,10 +39,10 @@
                         <div class = "row">
                             <div class = "col-md-3" style="margin-top: 40px;">
                                     <label> K-min: </label>
-                                    <input class="form-control"  type="number" id="kmin" value="0.9">
+                                    <input class="form-control"  type="number" id="kmin" oninput="this.value=(parseInt(this.value)||0)" placeholder="0-9" value="10">
                             </div>
                             <div class = "col-md-3" style="margin-top: 40px;">
-                                    <label for="seed"> Semente Inicial (inteiro) </label>
+                                    <label for="seed"> Semente Inicial (Opcional) </label>
                                     <input class="form-control" id="seed" value="">
                             </div>
                             <div class = "col-md-3" style="margin-top: 40px;">
@@ -62,7 +62,7 @@
                                                 <option value="tempoMedio" selected>Tempo Médio de Espera por Rodada</option>
                                                 <option value="numeroMedio">Número Médio de Pessoas por Rodada</option>
                                                 <option value="taxaDeUtilização">Taxa Média de Utilização por Rodada</option>
-                                                <option value="numeroTotalPesssoas">Número Total de Pessoas por Rodada</option>
+                                                <option value="numeroTotalPesssoas">Pessoas no Sistema</option>
                                         </select>
                                 </div>
                                 

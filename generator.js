@@ -6,6 +6,9 @@ function simulacaoCompleta( ){
     if( $("#taxaUtilizacao").val() == "" || $("#mu").val() == "" || $("#kmin").val() == "" ){
         alert("Preencha todos os campos antes de executar o simulador! (Com exceção da seed, que será gerada uma internamente caso não especificada)");
         return 0;
+    }else if($("#kmin").val() == 0){
+        alert("kmin precisa ser maior do que zero!");
+        return 0;
     }
 
     //Usamos o mesmo gerador durante todo o tempo
@@ -254,7 +257,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
                 data: []
             }]
         };
-        var totalPessoasPorRodadaData = {
+        var contagemTotalData = {
             labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
             datasets: [{
                 // backgroundColor: window.chartColors.blue,
@@ -269,11 +272,18 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
             //Grafico
             addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
             addDataToGraph({y : mediasTempoEspera[r], x : r}, mediasTempoEsperaData);
-            addDataToGraph({y : mediasNumeroEmFila[r],x : r}, numeroTotalPorRodadaData);
-            addDataToGraph({y : pessoasPorRodada[r].length,x : r}, totalPessoasPorRodadaData);            
+            addDataToGraph({y : mediasNumeroEmFila[r],x : r}, numeroTotalPorRodadaData);        
         }
 
-        plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, totalPessoasPorRodadaData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
+        for( r = 0 ; r < fila.contagem.length ;){ 
+            addDataToGraph({y : fila.contagem[r] * r ,x : r}, contagemTotalData); 
+            r  = ~~(r + fila.contagem.length/1000); //retorna o valor inteiro 
+            //como são muitas pessoas, incremento o gráfico do número total de pessoas/1000
+        }
+
+           
+
+        plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, contagemTotalData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
     }
 
     var tempoFimDaSimulacao = (new Date()).getMilliseconds()
