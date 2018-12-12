@@ -27,7 +27,7 @@ function addIC(tipoGrafico, icmin, icmax){
 };
 
 //window.onload = function() {
-function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, contagemTotalData, IcTempo, IcNum){
+function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUtilizacaoPorRodadaData, contagemTotalData, varianciasTempoEsperaData, IcTempo, IcNum){
     var ctx = document.getElementById('graph1').getContext('2d');
     console.log(IcTempo, IcNum);
     window.tempoMedioPorRodadaChart = new Chart(ctx, {
@@ -48,7 +48,6 @@ function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUti
                yAxes: [{
                         ticks: {
                             min: 1.5, // minimum value
-                            max: 2.5 // maximum value
                         }
                }]
             },
@@ -149,6 +148,29 @@ function plotgraphs(tempoMedioPorRodadaData, numeroMedioPorRodadaData, taxaDeUti
         }
     });
 
+    var ctx5 = document.getElementById('graph5').getContext('2d');
+    window.varianciasTempoEsperaDataChart = new Chart(ctx5, {
+        type: 'scatter',
+        data: varianciasTempoEsperaData,
+        options: {
+            responsive: true,
+            showLines: true,
+            legend: {
+                display: false,
+            },
+            title: {
+                display: true,
+                text: 'Variância do Tempo de Espera por Rodada'
+            },
+            scales: {
+               yAxes: [{
+                        ticks: {
+                            min: 0, // minimum value
+                        }
+               }]
+            }
+        }
+    });
 
 
 
