@@ -25,7 +25,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
     const   numeroTotalRodadas = 3200;
     var     fila = new Fila( disciplina_de_atendimento )
-    var     tempoInicioSimulacao = (new Date()).getMilliseconds()
+    var     s = new Date();
+    var     tempoInicioSimulacao = s.getTime();
     
     
 
@@ -298,7 +299,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
         plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, contagemTotalData, varianciasTempoEsperaData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
     }
 
-    var tempoFimDaSimulacao = (new Date()).getMilliseconds()
+    var d = new Date();
+    var tempoFimDaSimulacao = d.getTime();
     //Printa tabela sobre a simulacao
     $("#data").append("<h3>Estatísticas:<br></h3>");
     var tabelaFinal = "<table class='table table-striped table-bordered'><tbody>" //<thead><tr><td colspan='2'> Estatísticas</td></tr></thead>
