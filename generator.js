@@ -33,7 +33,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     var     emFaseTransiente = true;     //Inicialmente em fase transiente
     var     tempoFimTransiente;
     var     coletasEmFaseTransiente = [];    //Usaremos no critério de fim da fase transiente
-    var     varianciaFaseTransiente = null;  //Usaremos no critério de fim da fase transiente
+    var     ultimaVarianciaTransiente = null;  //Usaremos no critério de fim da fase transiente
     var     quedasVarianciaTransiente = 0;   //Usaremos no critério de fim da fase transiente
     var     rodadasTransientes = 1;          //Usaremos no critério de fim da fase transiente
     var     coletasPorRodada = [];       //Numero de entradas em cada rodada, inicialmente tudo 0.
@@ -141,14 +141,14 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
                     
                     // Comparamos a variancia da rodada transiente atual com a anterior
                     // para saber se podemos contabilizar uma queda de variância
-                    if(  varianciaFaseTransiente != null && _variancia >= varianciaFaseTransiente   ){
+                    if(  ultimaVarianciaTransiente != null && _variancia >= ultimaVarianciaTransiente   ){
                         quedasVarianciaTransiente++       
                     }
                     
                     // Caso ainda não tenha sido alcançado o número de quedas suficiente,
                     // começamos outra rodada transiente
                     if( quedasVarianciaTransiente < 3 ){   
-                        varianciaFaseTransiente = _variancia;
+                        ultimaVarianciaTransiente = _variancia;
                         coletasEmFaseTransiente = [];
                         rodadasTransientes ++
                     }
