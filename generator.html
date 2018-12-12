@@ -1,7 +1,7 @@
 <!DOCTYPE html>
     <head>
         <meta charset="UTF-8"> 
-        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="assets/jquery-3.3.1.min.js"></script>
         <link href="assets/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="generator.css">
     </head>
@@ -63,6 +63,7 @@
                                                 <option value="numeroMedio">Número Médio de Pessoas por Rodada</option>
                                                 <option value="taxaDeUtilização">Taxa Média de Utilização por Rodada</option>
                                                 <option value="numeroTotalPesssoas">Pessoas no Sistema</option>
+                                                <option value="varianciaTempoEspera">Variância do Tempo de Espera por Rodada</option>
                                         </select>
                                 </div>
                                 
@@ -75,6 +76,7 @@
                                 <canvas id="graph2" style="display:none"></canvas>
                                 <canvas id="graph3" style="display:none"></canvas>
                                 <canvas id="graph4" style="display:none"></canvas>
+                                <canvas id="graph5" style="display:none"></canvas>
                         </div>
                         <div id="data"></div>
                     </div>
@@ -94,24 +96,35 @@
                     $("#graph2").css("display","none");
                     $("#graph3").css("display","none");
                     $("#graph4").css("display","none");
+                    $("#graph5").css("display","none");
                 }
                 else if (this.value == "numeroMedio"){
                     $("#graph1").css("display","none");
                     $("#graph2").css("display","block");
                     $("#graph3").css("display","none");
                     $("#graph4").css("display","none");
+                    $("#graph5").css("display","none");
                 }
                 else if (this.value == "taxaDeUtilização"){
                     $("#graph1").css("display","none");
                     $("#graph2").css("display","none");
                     $("#graph3").css("display","block");
                     $("#graph4").css("display","none");
+                    $("#graph5").css("display","none");
                 }
                 else if (this.value == "numeroTotalPesssoas"){
                     $("#graph1").css("display","none");
                     $("#graph2").css("display","none");
                     $("#graph3").css("display","none");
                     $("#graph4").css("display","block");
+                    $("#graph5").css("display","none");
+                }
+                else if (this.value == "varianciaTempoEspera"){
+                    $("#graph1").css("display","none");
+                    $("#graph2").css("display","none");
+                    $("#graph3").css("display","none");
+                    $("#graph4").css("display","none");
+                    $("#graph5").css("display","block");
                 }
             });
 

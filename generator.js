@@ -268,11 +268,23 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
             }]
         };
 
+        var varianciasTempoEsperaData = {
+            labels: Array.apply(null, {length: numeroTotalRodadas+1}).map(Number.call, Number),
+            datasets: [{
+                // backgroundColor: window.chartColors.blue,
+                borderWidth: 1,
+                lineTension: 0,
+                radius: 0,
+                data: []
+            }]
+        };
+
         for( r = 0 ; r < numeroTotalRodadas ; r++ ){
             //Grafico
             addDataToGraph({y : taxaDeUtilizacaoPorRodada[r],x : r}, taxaDeUtilizacaoPorRodadaData);
             addDataToGraph({y : mediasTempoEspera[r], x : r}, mediasTempoEsperaData);
-            addDataToGraph({y : mediasNumeroEmFila[r],x : r}, numeroTotalPorRodadaData);        
+            addDataToGraph({y : mediasNumeroEmFila[r],x : r}, numeroTotalPorRodadaData);   
+            addDataToGraph({y : varianciasTempoEspera[r],x : r}, varianciasTempoEsperaData);   
         }
 
         for( r = 0 ; r < fila.contagem.length ;){ 
@@ -283,7 +295,7 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
 
            
 
-        plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, contagemTotalData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
+        plotgraphs(mediasTempoEsperaData, numeroTotalPorRodadaData, taxaDeUtilizacaoPorRodadaData, contagemTotalData, varianciasTempoEsperaData, IC_mediaTempoEspera, IC_mediaNumeroEmFila);
     }
 
     var tempoFimDaSimulacao = (new Date()).getMilliseconds()
