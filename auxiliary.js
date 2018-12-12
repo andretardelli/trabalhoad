@@ -30,8 +30,8 @@ function Fila( _disciplina_de_atendimento )
         }
 
         //Atualizamos contagem[]
-        contagem[n] = this.array.length; 
-        n++;
+        this.contagem[this.n] = this.array.length; 
+        this.n++;
     };
     //Remove o elemento 0 da fila e o retorna.
     this.pop = function()
