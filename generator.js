@@ -14,22 +14,38 @@ function simulacaoCompleta( ){
     //Usamos o mesmo gerador durante todo o tempo
     var gerador = new geradorAleatorio( $("#seed").val() )
         for( var i = 0 ; i < 1 ; i ++){
-        iniciaFila( taxa_de_utilizacao , disciplina , k_min , gerador );
+        iniciaFila( rho, numRodadas, pesRodadas , disciplina , numFaseTransiente , gerador );
     }
 
 }
 
-function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , gerador ){
-    const   lambda = $("#taxaUtilizacao").val();               // TO-DO: usar formula pra pegar lambda
-    const   mi = 1.0;                   // Constante 1 pelo enunciado
-    const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
-    const   numeroTotalRodadas = 3200;
+function iniciaFila( rho, numRodadas, pesRodadas , disciplina , numFaseTransiente , gerador ){
+    const   lambda = rho/2;                                 // taxa de chegada
+    const   mi = 1.0;                                       // taxa de servico
+    //const   numeroMinimoDeColetas = k_min; // Falta calcular aí, não sei se pode ser arbitrário ou w/e, ler slide de IC kkkkk    
+    var     eventos = [];                                   //lista de eventos                               
+    var     pessoasServidas = 0;                            //total pessoas que ja foram servidos
+    var     pessoasInstanciadas = 0;                        //total pessoas instanciadas no sistema
+    var     tempo = 0;                                      //tempo atual da simulacao
+    var     rodadaAtual = 0;                                //rodada da fase transiente
+    var     pessoaExecutando = null;                       //numero de pessoas que estao sendo executadas
+
     var     fila = new Fila( disciplina_de_atendimento )
     var     s = new Date();
     var     tempoInicioSimulacao = s.getTime();
-    
-    
 
+    var     interval = (numFaseTransiente + (pesRodadas * numRodadas)) * 0.1;
+    var     metricas = new Metricas(numRodadas, pesRodadas);  
+
+    var     idProxPessoa = 0;
+
+    if(numFaseTransiente > 0){
+        idProxPessoa = - numFaseTransiente;
+    }
+    else{
+        idProxPessoa = 0; 
+    }
+    
     // Variáveis de controle:
     var     rodadaAtual = -1;            // Ao término da fase transiente, muda para 0
     var     entrantesPosTransiente = 0;  // Quantos entraram pós fase transiente
@@ -41,8 +57,8 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     var     quedasVarianciaTransiente = 0;   //Usaremos no critério de fim da fase transiente
     var     rodadasTransientes = 1;          //Usaremos no critério de fim da fase transiente
     var     coletasPorRodada = [];       //Numero de entradas em cada rodada, inicialmente tudo 0.
-    var     proximaChegada = gerador.exponential( lambda );   // Agendamos a primeira chegada
-    var     proximaSaida = proximaChegada + gerador.exponential( mi );  // Já podemos agendar a primeira saida
+    var     tproximaChegada = 0;   
+    var     proximaSaida = proximaChegada + ;  // Já podemos agendar a primeira saida
     var     eventoAtual = proximaChegada;        // Momento do proximo evento. Inicialmente será o momento da proxima chegada
 
     // Variáveis coletadas      
@@ -70,6 +86,18 @@ function iniciaFila( taxa_de_utilizacao , disciplina_de_atendimento , k_min , ge
     proximaChegada = proximaChegada + gerador.exponential( lambda ); // Já agendamos a segunda chegada
 
     //------------------------------- INICIO DA SIMULACAO ------------------------------------
+    while(pessoasServidas < numRodadas * pesRodadas){
+        //tempo de chegada
+        tproximaChegada = gerador.exponential( lambda );
+        tempo += tproximaChegada;
+        while(tproximaChegada > 0 && pessoaExecutando){ //enquanto nao chega uma pessoa nova
+            if(pessoaExecutando.tempoServico <= tproximaChegada){ //se pessoa sendo servida acaba antes da proxima chegar
+                tproximaChegada
+            }
+        }
+    }
+
+
     while ( 
         rodadaAtual < numeroTotalRodadas || // Continuar enquanto rodadaAtual não for suficiente
         saintesPosTransiente < entrantesPosTransiente // Garante que todos que entraram e foram contabilizados na entrada saiam
